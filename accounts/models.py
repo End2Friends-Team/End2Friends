@@ -3,12 +3,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from PIL import Image
 
-
-# Represents a user account, the thing that logs in
+# Represents a user account
 class User(AbstractUser):
     nickname = models.CharField(max_length=50, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to="profiles/", blank=True, null=True)
     privacy_mode = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -16,19 +14,23 @@ class User(AbstractUser):
         return self.username
 
 
-# UserProfile handles presentation, dashboard data, preferences, stats.
+# UserProfile handles profile picture + display info
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to="profiles/", blank=True, null=True)
-    display_name = models.CharField(max_length=50, blank=True, null=True)
-    profile_pic = models.ImageField(upload_to="avatars/", default="avatars/default.png")
-    bio = models.TextField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    # The ONLY profile picture field
+    profile_image = models.ImageField(
+        upload_to="profiles/",
+        blank=True,
+        null=True
+    )
+
+    display_name = models.CharField(max_length=50, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.display_name or self.user.username
+
 
 
 class Task(models.Model):
