@@ -143,66 +143,115 @@
         </div>
     </div>
 
-    <!-- Change Avatar Modal -->
-    <div id="avatar-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center t-modal-overlay">
-        <div class="t-modal shadow-xl p-6 w-full max-w-md">
-            <div class="flex items-center justify-between pb-4 t-border-bottom mb-4">
-                <h3 class="text-lg font-medium t-text-primary">Change Profile Picture</h3>
-                <button onclick="closeAvatarModal()"
-                    class="t-text-secondary hover:opacity-70 rounded-lg w-9 h-9 inline-flex justify-center items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                </button>
+<!-- Change Avatar Modal -->
+<div id="avatar-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center t-modal-overlay">
+    <div class="t-modal shadow-xl p-6 w-full max-w-md">
+        <div class="flex items-center justify-between pb-4 t-border-bottom mb-4">
+            <h3 class="text-lg font-medium t-text-primary">Change Profile Picture</h3>
+            <button onclick="closeAvatarModal()"
+                class="t-text-secondary hover:opacity-70 rounded-lg w-9 h-9 inline-flex justify-center items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="py-4 flex flex-col gap-4">
+            <div class="flex justify-center">
+                {% if user.userprofile.profile_image %}
+                <img id="avatar-preview" class="rounded-full w-24 h-24 object-cover" src="{{ user.userprofile.profile_image.url }}" alt="Avatar">
+                {% else %}
+                <img id="avatar-preview" class="rounded-full w-24 h-24 object-cover"
+                    src="{% static 'images/profile_images/default_avatar.png' %}" alt="Default Avatar">
+                {% endif %}
             </div>
+            <div class="flex items-center gap-3">
+                <label for="direct-upload-input" class="t-btn-ghost cursor-pointer">Choose File</label>
+                <span id="file-name" class="text-sm t-text-muted">No file chosen</span>
+                <input type="file" id="direct-upload-input" accept="image/*" class="hidden">
+            </div>
+            <p id="upload-status" class="text-sm t-text-secondary hidden">Uploading...</p>
+        </div>
 
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="avatar">
-
-                <div class="py-4 flex flex-col gap-4">
-                    <div class="flex justify-center">
-                        {% if user.userprofile.profile_image %}
-                        <img class="rounded-full w-24 h-24 object-cover"
-                             src="{{ user.userprofile.profile_image.url }}"
-                             alt="Profile Image">
-                        {% else %}
-                        <img class="rounded-full w-24 h-24 object-cover"
-                             src="{% static 'images/profile_images/default_avatar.png' %}"
-                             alt="Default Avatar">
-                        {% endif %}
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-3">
-                            <label for="{{ profile_form.profile_image.id_for_label }}" class="t-btn-ghost cursor-pointer">
-                                Choose File
-                            </label>
-                            <span id="file-name" class="text-sm t-text-muted">No file chosen</span>
-                            {{ profile_form.profile_image }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 pt-4 t-border-top">
-                    <button type="submit" class="t-btn-ghost">Save</button>
-                </div>
-            </form>
+        <div class="flex gap-4 pt-4 t-border-top">
+            <button onclick="uploadAvatar()" class="t-btn-ghost">Save</button>
         </div>
     </div>
+</div>
 </main>
 
 <script>
+    const CLOUD_NAME = "{{ cloudinary_cloud_name }}";
+    const UPLOAD_PRESET = "{{ cloudinary_upload_preset }}";
+
     function openEditModal()  { document.getElementById('edit-modal').classList.remove('hidden') }
     function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden') }
     function openAvatarModal()  { document.getElementById('avatar-modal').classList.remove('hidden') }
     function closeAvatarModal() { document.getElementById('avatar-modal').classList.add('hidden') }
 
-    document.querySelector('input[type="file"]').classList.add('hidden');
-    document.querySelector('input[type="file"]').addEventListener('change', function () {
+    document.getElementById('direct-upload-input').addEventListener('change', function() {
         const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
         document.getElementById('file-name').textContent = fileName;
+
+        // Show preview immediately
+        if (this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById('avatar-preview').src = e.target.result;
+            reader.readAsDataURL(this.files[0]);
+        }
     });
+
+    async function uploadAvatar() {
+        const input = document.getElementById('direct-upload-input');
+        const status = document.getElementById('upload-status');
+
+        if (!input.files[0]) return;
+
+        status.textContent = 'Uploading...';
+        status.classList.remove('hidden');
+
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        formData.append('upload_preset', UPLOAD_PRESET);
+        formData.append('folder', 'profiles');
+
+        try {
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                { method: 'POST', body: formData }
+            );
+            const data = await res.json();
+
+            if (data.secure_url) {
+                // Send just the public_id to Django to save in the database
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') 
+                    ? document.querySelector('[name=csrfmiddlewaretoken]').value
+                    : '{{ csrf_token }}';
+
+                const saveRes = await fetch('/accounts/profile/save-avatar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ public_id: data.public_id })
+                });
+
+                if (saveRes.ok) {
+                    status.textContent = 'Saved!';
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    status.textContent = 'Save failed. Try again.';
+                }
+            } else {
+                status.textContent = 'Upload failed. Try again.';
+            }
+        } catch (err) {
+            status.textContent = 'Something went wrong.';
+            console.error(err);
+        }
+    }
+</script>
 </script>
 {% endblock %}
