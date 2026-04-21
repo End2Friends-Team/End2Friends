@@ -27,19 +27,6 @@ class UserProfile(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        # Safely process avatar image
-        if self.avatar and hasattr(self.avatar, "path"):
-            try:
-                img = Image.open(self.avatar.path)
-
-                if img.height > 100 or img.width > 100:
-                    img.thumbnail((100, 100))
-                    img.save(self.avatar.path)
-
-            except Exception:
-                # File missing, invalid, or no extension — skip processing
-                pass
-
     def __str__(self):
         return self.display_name or self.user.username
 
