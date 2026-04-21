@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from rooms.models import StudyRoom
 from chat.models import Conversation
 
+import os
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -30,17 +31,6 @@ from .models import (
 )
 
 
-@login_required
-@require_POST
-def save_avatar(request):
-    data = json.loads(request.body)
-    public_id = data.get('public_id', '').strip()
-    if public_id:
-        profile = request.user.userprofile
-        profile.profile_image = public_id
-        profile.save()
-        return JsonResponse({'ok': True})
-    return JsonResponse({'ok': False}, status=400)
 
 def register_view(request):
     if request.method == "POST":
@@ -151,6 +141,18 @@ def people_view(request):
         users = users.filter(username__icontains=query)
     return render(request, "accounts/people.html", {"users": users, "query": query})
 
+@login_required
+@require_POST
+def save_avatar(request):
+    data = json.loads(request.body)
+    public_id = data.get('public_id', '').strip()
+    if public_id:
+        profile = request.user.userprofile
+        profile.profile_image = public_id
+        profile.save()
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False}, status=400)
+
 
 @login_required
 def profile_view(request):
@@ -197,6 +199,7 @@ def profile_view(request):
             'cloudinary_upload_preset': os.getenv('CLOUDINARY_UPLOAD_PRESET'),
         }
     )
+
 
 
 @login_required
