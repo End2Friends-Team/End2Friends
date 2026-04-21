@@ -48,18 +48,23 @@
                 <div class="t-card-inner p-4">
                     <div class="flex gap-6 items-center">
                         <div class="relative">
-                            {% if user.userprofile.avatar %}
-                            <img class="rounded-full w-24 h-24 object-cover" src="{{ user.userprofile.avatar.url }}" alt="Avatar">
+                            {% if user.userprofile.profile_image %}
+                            <img class="rounded-full w-24 h-24 object-cover"
+                                 src="{{ user.userprofile.profile_image.url }}"
+                                 alt="Profile Image">
                             {% else %}
                             <img class="rounded-full w-24 h-24 object-cover"
-                                src="{% static 'images/profile_images/default_avatar.png' %}" alt="Default Avatar">
+                                 src="{% static 'images/profile_images/default_avatar.png' %}"
+                                 alt="Default Avatar">
                             {% endif %}
+
                             <div onclick="openAvatarModal()"
                                 class="absolute bottom-0 right-0 rounded-full p-1 shadow-sm cursor-pointer flex items-center justify-center"
                                 style="background: var(--bg-card); border: 1px solid var(--border-card);">
                                 <span class="material-symbols-outlined t-text-secondary" style="font-size: 16px;">photo_camera</span>
                             </div>
                         </div>
+
                         <div class="flex flex-col gap-2">
                             <h1 class="text-xl font-bold t-text-primary">{{ user.username }}</h1>
                             <p class="text-sm t-text-secondary">{{ user.userprofile.bio|default:"No bio yet." }}</p>
@@ -76,12 +81,14 @@
                             <span class="material-symbols-outlined" style="font-size: 17px; vertical-align: middle;">edit</span>
                         </button>
                     </div>
+
                     <div class="space-y-3 px-4 pt-4">
                         <div class="grid grid-cols-3">
                             <h1 class="t-text-secondary font-semibold text-lg">Username</h1>
                             <h1 class="t-text-secondary font-semibold text-lg">Email Address</h1>
                             <h1 class="t-text-secondary font-semibold text-lg">Bio</h1>
                         </div>
+
                         <div class="grid grid-cols-3">
                             <h1 class="t-text-primary text-base">{{ user.username }}</h1>
                             <h1 class="t-text-primary text-base">{{ user.email }}</h1>
@@ -111,20 +118,24 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="edit_profile">
+
                 <div class="space-y-4 py-4">
                     <div class="flex flex-col gap-1">
                         <label class="text-sm font-medium t-text-secondary">Username</label>
                         {{ user_form.username.as_widget }}
                     </div>
+
                     <div class="flex flex-col gap-1">
                         <label class="text-sm font-medium t-text-secondary">Email</label>
                         {{ user_form.email }}
                     </div>
+
                     <div class="flex flex-col gap-1">
                         <label class="text-sm font-medium t-text-secondary">Bio</label>
                         {{ profile_form.bio }}
                     </div>
                 </div>
+
                 <div class="flex gap-4 pt-4 t-border-top">
                     <button type="submit" class="t-btn-ghost">Save Changes</button>
                 </div>
@@ -149,25 +160,31 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="avatar">
+
                 <div class="py-4 flex flex-col gap-4">
                     <div class="flex justify-center">
-                        {% if user.userprofile.avatar %}
-                        <img class="rounded-full w-24 h-24 object-cover" src="{{ user.userprofile.avatar.url }}" alt="Avatar">
+                        {% if user.userprofile.profile_image %}
+                        <img class="rounded-full w-24 h-24 object-cover"
+                             src="{{ user.userprofile.profile_image.url }}"
+                             alt="Profile Image">
                         {% else %}
                         <img class="rounded-full w-24 h-24 object-cover"
-                            src="{% static 'images/profile_images/default_avatar.png' %}" alt="Default Avatar">
+                             src="{% static 'images/profile_images/default_avatar.png' %}"
+                             alt="Default Avatar">
                         {% endif %}
                     </div>
+
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-3">
-                            <label for="{{ profile_form.avatar.id_for_label }}" class="t-btn-ghost cursor-pointer">
+                            <label for="{{ profile_form.profile_image.id_for_label }}" class="t-btn-ghost cursor-pointer">
                                 Choose File
                             </label>
                             <span id="file-name" class="text-sm t-text-muted">No file chosen</span>
-                            {{ profile_form.avatar }}
+                            {{ profile_form.profile_image }}
                         </div>
                     </div>
                 </div>
+
                 <div class="flex gap-4 pt-4 t-border-top">
                     <button type="submit" class="t-btn-ghost">Save</button>
                 </div>
