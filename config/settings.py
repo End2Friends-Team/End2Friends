@@ -8,7 +8,7 @@ import dj_database_url
 from pathlib import Path
 import cloudinary
 
-load_dotenv()
+load_dotenv(override=False)
 
 # ---------------------------------------------------------
 # BASE DIR
