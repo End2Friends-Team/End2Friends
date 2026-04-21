@@ -183,7 +183,7 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # ---------------------------------------------------------
 # MEDIA FILES (USER UPLOADS)
 # ---------------------------------------------------------
-MEDIA_URL = '/media/'
+MEDIA_URL = f'https://res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_NAME")}/'
 
 
 # ---------------------------------------------------------
