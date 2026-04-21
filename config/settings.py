@@ -39,6 +39,7 @@ CSRF_COOKIE_SAMESITE = 'None'
 # APPS
 # ---------------------------------------------------------
 INSTALLED_APPS = [
+    'cloudinary_storage',
     'core',
     'accounts.apps.AccountsConfig',
     'django.contrib.admin',
@@ -52,7 +53,6 @@ INSTALLED_APPS = [
     'channels',
     'groups',
     'cloudinary',
-    'cloudinary_storage',
 ]
 
 # ---------------------------------------------------------
