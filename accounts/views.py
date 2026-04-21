@@ -6,6 +6,10 @@ from django.contrib.auth import get_user_model
 from rooms.models import StudyRoom
 from chat.models import Conversation
 
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
 User = get_user_model()
 
 from .forms import (
@@ -25,6 +29,18 @@ from .models import (
     Activity,
 )
 
+
+@login_required
+@require_POST
+def save_avatar(request):
+    data = json.loads(request.body)
+    public_id = data.get('public_id', '').strip()
+    if public_id:
+        profile = request.user.userprofile
+        profile.profile_image = public_id
+        profile.save()
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False}, status=400)
 
 def register_view(request):
     if request.method == "POST":
