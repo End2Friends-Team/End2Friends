@@ -8,8 +8,6 @@ import dj_database_url
 from pathlib import Path
 import cloudinary
 
-# For debugging purposes
-import logging
 
 load_dotenv(override=False)
 
@@ -181,11 +179,6 @@ cloudinary.config(
 # TELL django to use Cloudinary for all media uploads
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-#---------------------
-# DEBUGGING 
-#---------------------
-logger = logging.getLogger(__name__)
-logger.warning(f"CLOUDINARY CLOUD NAME: {os.getenv('CLOUDINARY_CLOUD_NAME')}")
 
 # ---------------------------------------------------------
 # MEDIA FILES (USER UPLOADS)
