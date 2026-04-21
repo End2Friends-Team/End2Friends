@@ -8,6 +8,9 @@ import dj_database_url
 from pathlib import Path
 import cloudinary
 
+# For debugging purposes
+import logging
+
 load_dotenv(override=False)
 
 # ---------------------------------------------------------
@@ -38,7 +41,6 @@ CSRF_COOKIE_SAMESITE = 'None'
 # APPS
 # ---------------------------------------------------------
 INSTALLED_APPS = [
-    'cloudinary_storage',
     'core',
     'accounts.apps.AccountsConfig',
     'django.contrib.admin',
@@ -49,9 +51,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'chat.apps.MessagesConfig',
     'rooms',
-    "channels",
-    "groups",
+    'channels',
+    'groups',
     'cloudinary',
+    'cloudinary_storage',
 ]
 
 # ---------------------------------------------------------
@@ -159,6 +162,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # ---------------------------------------------------------
 # Cloudinary Config
 # ---------------------------------------------------------
+
+# Needed for 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
@@ -175,6 +180,12 @@ cloudinary.config(
 
 # TELL django to use Cloudinary for all media uploads
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+#---------------------
+# DEBUGGING 
+#---------------------
+logger = logging.getLogger(__name__)
+logger.warning(f"CLOUDINARY CLOUD NAME: {os.getenv('CLOUDINARY_CLOUD_NAME')}")
 
 # ---------------------------------------------------------
 # MEDIA FILES (USER UPLOADS)
