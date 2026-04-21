@@ -11,6 +11,7 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomAuthenticationForm(AuthenticationForm):
     pass
 
+
 class UpdateUserForm(forms.ModelForm):
     username = forms.CharField(max_length=100, required=True)
     email = forms.EmailField(required=True)
@@ -21,13 +22,14 @@ class UpdateUserForm(forms.ModelForm):
 
 
 class UpdateProfileForm(forms.ModelForm):
-    avatar = forms.ImageField(widget=forms.FileInput(), required=False)
+    profile_image = forms.ImageField(widget=forms.FileInput(), required=False)
     bio = forms.CharField(widget=forms.Textarea(), required=False)
 
     class Meta:
         model = UserProfile
-        fields = ["avatar", "bio"]
-        
+        fields = ["profile_image", "bio"]
+
+
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task

@@ -25,6 +25,7 @@ from .models import (
     Activity,
 )
 
+
 def register_view(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -56,8 +57,6 @@ def logout_view(request):
 
 @login_required
 def messages_view(request):
-    from chat.models import Conversation
-
     conversations = Conversation.objects.filter(
         participants=request.user
     ).prefetch_related('participants').order_by('-id')
@@ -66,9 +65,9 @@ def messages_view(request):
         "conversations": conversations,
     })
 
+
 @login_required
 def settings_view(request):
-    """Settings page with empty state"""
     return render(request, "accounts/settings.html")
 
 
@@ -83,6 +82,7 @@ def dashboard_view(request):
                 task.user = request.user
                 task.save()
                 return redirect("dashboard")
+
         elif "create_channel" in request.POST:
             channel_form = ChannelForm(request.POST)
             form = TaskForm()
@@ -90,6 +90,7 @@ def dashboard_view(request):
                 channel = channel_form.save()
                 channel.members.add(request.user)
                 return redirect("dashboard")
+
     else:
         form = TaskForm()
         channel_form = ChannelForm()
@@ -103,8 +104,7 @@ def dashboard_view(request):
     )[:5]
     activities = Activity.objects.filter(user=request.user)[:4]
     study_rooms = StudyRoom.objects.filter(memberships__user=request.user)[:4]
-    
-    # Get 3 most recent DM conversations
+
     recent_conversations = Conversation.objects.filter(
         participants=request.user,
         is_private=True
@@ -139,31 +139,51 @@ def people_view(request):
 @login_required
 def profile_view(request):
     if request.method == 'POST':
+
+        # Avatar upload modal
         if request.POST.get('form_type') == 'avatar':
-            profile_form = UpdateProfileForm(request.POST, request.FILES, instance=request.user.userprofile)
+            profile_form = UpdateProfileForm(
+                request.POST,
+                request.FILES,
+                instance=request.user.userprofile
+            )
             user_form = UpdateUserForm(instance=request.user)
+
             if profile_form.is_valid():
                 profile_form.save()
                 return redirect('profile')
+
+        # Edit profile modal
         else:
             user_form = UpdateUserForm(request.POST, instance=request.user)
-            profile_form = UpdateProfileForm(request.POST, request.FILES, instance=request.user.userprofile)
+            profile_form = UpdateProfileForm(
+                request.POST,
+                request.FILES,
+                instance=request.user.userprofile
+            )
+
             if user_form.is_valid() and profile_form.is_valid():
                 user_form.save()
                 profile_form.save()
                 return redirect('profile')
+
     else:
         user_form = UpdateUserForm(instance=request.user)
         profile_form = UpdateProfileForm(instance=request.user.userprofile)
-    return render(request, 'accounts/profile.html', {'user_form': user_form, 'profile_form': profile_form})
+
+    return render(
+        request,
+        'accounts/profile.html',
+        {
+            'user_form': user_form,
+            'profile_form': profile_form
+        }
+    )
 
 
 @login_required
 def toggle_task(request, task_id):
-    """Toggle task completion status."""
     from django.http import JsonResponse
-    from .models import Task
-    
     task = Task.objects.filter(id=task_id, user=request.user).first()
     if task:
         task.completed = not task.completed
@@ -174,10 +194,7 @@ def toggle_task(request, task_id):
 
 @login_required
 def delete_task(request, task_id):
-    """Delete a task."""
     from django.http import JsonResponse
-    from .models import Task
-    
     task = Task.objects.filter(id=task_id, user=request.user).first()
     if task:
         task.delete()
@@ -187,15 +204,14 @@ def delete_task(request, task_id):
 
 @login_required
 def add_reminder(request):
-    """Add a new reminder."""
     from django.http import JsonResponse
     from .models import Reminder
     from datetime import datetime
-    
+
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
         remind_at = request.POST.get('remind_at', '')
-        
+
         if title and remind_at:
             try:
                 remind_datetime = datetime.fromisoformat(remind_at)
@@ -207,16 +223,13 @@ def add_reminder(request):
                 return redirect('dashboard')
             except ValueError:
                 pass
-    
+
     return redirect('dashboard')
 
 
 @login_required
 def dismiss_reminder(request, reminder_id):
-    """Dismiss/delete a reminder."""
     from django.http import JsonResponse
-    from .models import Reminder
-    
     reminder = Reminder.objects.filter(id=reminder_id, user=request.user).first()
     if reminder:
         reminder.delete()
