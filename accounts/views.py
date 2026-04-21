@@ -192,7 +192,9 @@ def profile_view(request):
         'accounts/profile.html',
         {
             'user_form': user_form,
-            'profile_form': profile_form
+            'profile_form': profile_form,
+            'cloudinary_cloud_name': os.getenv('CLOUDINARY_CLOUD_NAME'),
+            'cloudinary_upload_preset': os.getenv('CLOUDINARY_UPLOAD_PRESET'),
         }
     )
 
