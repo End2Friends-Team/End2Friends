@@ -32,7 +32,6 @@ class UserProfile(models.Model):
         return self.display_name or self.user.username
 
 
-
 class Task(models.Model):
     PRIORITY_CHOICES = [
         ('high', 'High'),
@@ -71,6 +70,7 @@ class Task(models.Model):
 
 class Channel(models.Model):
     """Represents a chat channel that users can join."""
+
     name = models.CharField(max_length=100)
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='channels')
     unread_count = models.PositiveIntegerField(default=0)
@@ -103,9 +103,9 @@ class PomodoroSession(models.Model):
     default='not_started')
     session_duration = models.PositiveIntegerField(default=25)
     break_duration = models.PositiveIntegerField(default=5)
-    cycles_completed = models.PositiveIntegerField(default=0) # <-- add
-    started_at = models.DateTimeField(auto_now_add=True) # <-- add
-    ended_at = models.DateTimeField(null=True, blank=True) # <-- add
+    cycles_completed = models.PositiveIntegerField(default=0) 
+    started_at = models.DateTimeField(auto_now_add=True) 
+    ended_at = models.DateTimeField(null=True, blank=True) 
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f"{self.user.username} session {self.id}"
@@ -116,6 +116,7 @@ class Reminder(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reminders')
     title = models.CharField(max_length=200)
     remind_at = models.DateTimeField()
+    
     # Change channel from CharField to ForeignKey
     channel = models.ForeignKey(
         'accounts.Channel',
