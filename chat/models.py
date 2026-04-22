@@ -116,15 +116,11 @@ class Message(models.Model):
             return os.path.basename(self.file.name)
         return None
 
-    # quick check to see if the uploaded file is an image
+    # check if uploaded file is an image by extension
+    # (Image.open won't work with Cloudinary-stored files — no local path)
     @property
     def is_image(self):
         if not self.file:
             return False
-        try:
-            from PIL import Image
-            img = Image.open(self.file)
-            img.verify()
-            return True
-        except Exception:
-            return False
+        ext = os.path.splitext(self.file.name)[1].lower()
+        return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']

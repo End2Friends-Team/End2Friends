@@ -6,8 +6,10 @@ from dotenv import load_dotenv
 import os
 import dj_database_url
 from pathlib import Path
+import cloudinary
 
-load_dotenv()
+
+load_dotenv(override=False)
 
 # ---------------------------------------------------------
 # BASE DIR
@@ -37,6 +39,7 @@ CSRF_COOKIE_SAMESITE = 'None'
 # APPS
 # ---------------------------------------------------------
 INSTALLED_APPS = [
+    'cloudinary_storage',
     'core',
     'accounts.apps.AccountsConfig',
     'django.contrib.admin',
@@ -47,8 +50,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'chat.apps.MessagesConfig',
     'rooms',
-    "channels",
-    "groups",
+    'channels',
+    'groups',
+    'cloudinary',
 ]
 
 # ---------------------------------------------------------
@@ -151,15 +155,36 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+
+# ---------------------------------------------------------
+# Cloudinary Config
+# ---------------------------------------------------------
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
+
+
+# TELL django to use Cloudinary for all media uploads
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
 # ---------------------------------------------------------
 # MEDIA FILES (USER UPLOADS)
 # ---------------------------------------------------------
-MEDIA_URL = '/media/'
+MEDIA_URL = f'https://res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_NAME")}/'
 
-if os.environ.get("RENDER"):
-    MEDIA_ROOT = '/opt/render/project/src/media'
-else:
-    MEDIA_ROOT = BASE_DIR / 'media'
 
 # ---------------------------------------------------------
 # CUSTOM USER MODEL

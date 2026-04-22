@@ -17,4 +17,5 @@ urlpatterns = [
     # Reminder actions
     path("reminders/add/", views.add_reminder, name="add_reminder"),
     path("reminders/<int:reminder_id>/dismiss/", views.dismiss_reminder, name="dismiss_reminder"),
+    path('profile/save-avatar/', views.save_avatar, name='save_avatar'),
 ]
