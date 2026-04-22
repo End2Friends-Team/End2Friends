@@ -11,6 +11,10 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
+from django.http import JsonResponse
+from .models import Reminder
+from datetime import datetime
+
 User = get_user_model()
 
 from .forms import (
@@ -225,9 +229,6 @@ def delete_task(request, task_id):
 
 @login_required
 def add_reminder(request):
-    from django.http import JsonResponse
-    from .models import Reminder
-    from datetime import datetime
 
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
