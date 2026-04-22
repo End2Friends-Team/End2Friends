@@ -364,11 +364,22 @@
                     <span class="nav-text">Messages</span>
                     <span class="tooltip">Messages</span>
                 </a>
-                <a href="{% url 'profile' %}" class="nav-link {% if '/profile/' in request.path %}active{% endif %}">
-                    <span class="material-symbols-outlined flex-shrink-0">person</span>
-                    <span class="nav-text">Profile</span>
-                    <span class="tooltip">Profile</span>
-                </a>
+<a href="{% url 'profile' %}" class="nav-link {% if '/profile/' in request.path %}active{% endif %}">
+    
+    {% if user.is_authenticated and user.userprofile.profile_image %}
+        <img 
+            src="{{ user.userprofile.profile_image.url }}"
+            alt="Profile picture"
+            class="h-6 w-6 rounded-full object-cover flex-shrink-0"
+        >
+    {% else %}
+        <span class="material-symbols-outlined flex-shrink-0">person</span>
+    {% endif %}
+
+    <span class="nav-text">Profile</span>
+    <span class="tooltip">Profile</span>
+</a>
+
                 <a href="{% url 'people' %}" class="nav-link {% if '/people/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">person_search</span>
                     <span class="nav-text">People</span>
