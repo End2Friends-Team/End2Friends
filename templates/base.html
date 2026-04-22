@@ -336,13 +336,19 @@
             <!-- User -->
             <div class="p-4 flex items-center gap-3 sidebar-user">
                 <div class="flex justify-center">
-                    {% if user.userprofile.avatar %}
-                    <img class="rounded-full w-9 h-9 object-cover flex-shrink-0" src="{{ user.userprofile.avatar.url }}" alt="Avatar">
-                    {% else %}
-                    <div class="flex items-center justify-center rounded-full w-9 h-9 flex-shrink-0 t-accent-icon-wrap" style="width:36px;height:36px;">
-                        <span class="material-symbols-outlined" style="color: var(--accent);">person</span>
-                    </div>
-                    {% endif %}
+{% if user.userprofile.profile_image %}
+    <img 
+        class="rounded-full w-9 h-9 object-cover flex-shrink-0" 
+        src="{{ user.userprofile.profile_image.url }}" 
+        alt="Profile picture"
+    >
+{% else %}
+    <div class="flex items-center justify-center rounded-full w-9 h-9 flex-shrink-0 t-accent-icon-wrap" style="width:36px;height:36px;">
+        <span class="material-symbols-outlined" style="color: var(--accent);">person</span>
+    </div>
+{% endif %}
+
+
                 </div>
                 <span class="text-sm nav-text t-text-primary">{{ user.username }}</span>
             </div>
@@ -364,21 +370,12 @@
                     <span class="nav-text">Messages</span>
                     <span class="tooltip">Messages</span>
                 </a>
-<a href="{% url 'profile' %}" class="nav-link {% if '/profile/' in request.path %}active{% endif %}">
-    
-    {% if user.is_authenticated and user.userprofile.profile_image %}
-        <img 
-            src="{{ user.userprofile.profile_image.url }}"
-            alt="Profile picture"
-            class="h-6 w-6 rounded-full object-cover flex-shrink-0"
-        >
-    {% else %}
-        <span class="material-symbols-outlined flex-shrink-0">person</span>
-    {% endif %}
+                <a href="{% url 'profile' %}" class="nav-link {% if '/profile/' in request.path %}active{% endif %}">
+                    <span class="material-symbols-outlined flex-shrink-0">person</span>
+                    <span class="nav-text">Profile</span>
+                    <span class="tooltip">Profile</span>
+                </a>
 
-    <span class="nav-text">Profile</span>
-    <span class="tooltip">Profile</span>
-</a>
 
                 <a href="{% url 'people' %}" class="nav-link {% if '/people/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">person_search</span>
