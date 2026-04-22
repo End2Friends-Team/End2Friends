@@ -266,10 +266,6 @@
             pointer-events: none;
         }
 
-        aside.collapsed .nav-link:hover .tooltip {
-            opacity: 1;
-        }
-
         .nav-link {
             display: flex;
             align-items: center;
@@ -293,45 +289,39 @@
             color: var(--text-nav-active);
         }
 
-        .nav-link .tooltip {
-            position: absolute;
-            left: 56px;
-            background: #1e1e2a;
-            color: #f0eeff;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
+        /* hover sidebar */
+        #sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 64px;
+            overflow: hidden;
+            transition: width 0.3s ease;
             z-index: 100;
+        }
+
+        #sidebar:hover {
+            width: 220px;
+        }
+
+        #sidebar .nav-text {
+            opacity: 0;
+            transition: opacity 0.2s ease;
             white-space: nowrap;
         }
 
-        #sidebar-toggle {
-            position: absolute;
-            top: 20px;
-            right: -14px;
-            z-index: 50;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--sidebar-btn-bg);
-            border: 1.5px solid var(--border-main);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            transition: background 0.2s;
+        #sidebar:hover .nav-text {
+            opacity: 1;
         }
 
-        #sidebar-toggle:hover {
-            background: var(--bg-nav-hover);
+        body {
+            margin-left: 64px;
+            transition: margin-left 0.3s ease;
         }
 
-        aside.collapsed #sidebar-toggle {
-            transform: rotate(180deg);
+        body:has(#sidebar:hover) {
+            margin-left: 220px;
         }
 
         /* ─── THEME TOGGLE BUTTON ─── */
@@ -389,12 +379,6 @@
 
         <!-- Sidebar -->
         <aside id="sidebar" class="flex flex-col shadow-md">
-
-            <!-- Collapse toggle -->
-            <button id="sidebar-toggle">
-                <span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span>
-            </button>
-
             <!-- Logo - clickable to dashboard -->
             <a href="{% url 'dashboard' %}" class="p-4 flex items-center gap-2 sidebar-logo" style="min-height:64px;">
                 <span class="material-symbols-outlined flex-shrink-0">drone_2</span>
@@ -425,37 +409,31 @@
                     class="nav-link {% if '/dashboard/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">dashboard</span>
                     <span class="nav-text">Dashboard</span>
-                    <span class="tooltip">Dashboard</span>
                 </a>
                 <a href="{% url 'rooms:room_list' %}"
                     class="nav-link {% if '/rooms/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">groups</span>
                     <span class="nav-text">Rooms</span>
-                    <span class="tooltip">Rooms</span>
                 </a>
                 <a href="{% url 'messages_page' %}"
                     class="nav-link {% if '/messages/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">chat</span>
                     <span class="nav-text">Messages</span>
-                    <span class="tooltip">Messages</span>
                 </a>
                 <a href="{% url 'profile' %}" class="nav-link {% if '/profile/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">person</span>
                     <span class="nav-text">Profile</span>
-                    <span class="tooltip">Profile</span>
                 </a>
 
 
                 <a href="{% url 'people' %}" class="nav-link {% if '/people/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">person_search</span>
                     <span class="nav-text">People</span>
-                    <span class="tooltip">People</span>
                 </a>
                 <a href="{% url 'settings_page' %}"
                     class="nav-link {% if '/settings/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">settings</span>
                     <span class="nav-text">Settings</span>
-                    <span class="tooltip">Settings</span>
                 </a>
             </nav>
 
@@ -468,7 +446,6 @@
                 <a href="{% url 'logout' %}" class="nav-link" style="color: #f87171; margin-bottom:0;">
                     <span class="material-symbols-outlined flex-shrink-0">logout</span>
                     <span class="nav-text">Log out</span>
-                    <span class="tooltip">Log out</span>
                 </a>
             </div>
         </aside>
@@ -479,20 +456,6 @@
     </div>
 
     <script>
-        /* ── SIDEBAR COLLAPSE ── */
-        const sidebar = document.getElementById('sidebar');
-        const toggle = document.getElementById('sidebar-toggle');
-        const SIDEBAR_KEY = 'sidebar_collapsed';
-
-        if (localStorage.getItem(SIDEBAR_KEY) === 'true') {
-            sidebar.classList.add('collapsed');
-        }
-
-        toggle.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            localStorage.setItem(SIDEBAR_KEY, sidebar.classList.contains('collapsed'));
-        });
-
         /* ── THEME TOGGLE ── */
         const THEME_KEY = 'e2f_theme';
         const icon = document.getElementById('theme-icon');
