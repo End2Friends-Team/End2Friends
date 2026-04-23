@@ -7,17 +7,24 @@
     <main class="flex-1 flex flex-col" style="background: var(--bg-page);">
 
         <!-- Chat Header -->
-        <div class="p-4 flex items-center gap-4" style="background: var(--bg-card); border-bottom: 1px solid var(--border-card);">
+        <div class="p-4 flex items-center gap-4"
+            style="background: var(--bg-card); border-bottom: 1px solid var(--border-card);">
             <div class="relative">
+                {% if other_user and other_user.userprofile.profile_image %}
+                <img class="rounded-full w-12 h-12 object-cover flex-shrink-0"
+                    src="{{ other_user.userprofile.profile_image.url }}" alt="Avatar">
+                {% else %}
                 <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
                     style="background: linear-gradient(135deg, #9B76B4 0%, #E8B4D4 100%);">
-                    {% if other_user %}{{ other_user.username|first|upper }}{% else %}{{ room_name|first|upper }}{% endif %}
+                    {% if other_user %}{{ other_user.username|first|upper }}{% else %}{{ room_name|first|upper }}
+                    {%endif %}
                 </div>
+                {% endif %}
                 <div class="online-dot"></div>
             </div>
             <div>
-                <h2 class="font-bold t-text-primary text-lg">{% if other_user %}{{ other_user.username }}{% else %}#{{ room_name }}{% endif %}</h2>
-                <p class="text-xs t-text-accent">● Active now</p>
+                <h2 class="font-bold t-text-primary text-lg">{% if other_user %}{{ other_user.username }}{% else %}#{{
+                    room_name }}{% endif %}</h2>
             </div>
         </div>
 
@@ -27,7 +34,7 @@
             {% if message.is_deleted %}
             <div class="flex justify-end">
                 <p class="text-xs t-text-muted italic px-4 py-2 rounded-full"
-                   style="background: var(--bg-item); border: 1px solid var(--border-card);">
+                    style="background: var(--bg-item); border: 1px solid var(--border-card);">
                     This message was deleted.
                 </p>
             </div>
@@ -37,7 +44,8 @@
                 <div class="relative max-w-md">
                     <div class="action-bar">
                         <button onclick="startEdit('{{ message.id }}')" title="Edit message" class="action-btn">
-                            <span class="material-symbols-outlined text-[18px]" style="color: var(--accent);">edit</span>
+                            <span class="material-symbols-outlined text-[18px]"
+                                style="color: var(--accent);">edit</span>
                         </button>
                         <button onclick="deleteMessage('{{ message.id }}')" title="Delete message" class="action-btn">
                             <span class="material-symbols-outlined text-[18px] text-red-400">delete</span>
@@ -45,20 +53,20 @@
                     </div>
                     <p class="text-xs t-text-muted text-right mb-1">{{ message.timestamp|timesince }} ago</p>
                     {% if message.file %}
-                        {% if message.is_image %}
-                        <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
-                            <img src="{{ message.file.url }}" alt="{{ message.original_filename }}" 
-                                class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
-                        </a>
-                        {% else %}
-                        <a href="{{ message.file.url }}" target="_blank" 
-                            class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-white text-sm"
-                            style="background: var(--accent);">
-                            <span class="material-symbols-outlined">description</span>
-                            <span class="truncate">{{ message.original_filename }}</span>
-                            <span class="material-symbols-outlined text-sm">download</span>
-                        </a>
-                        {% endif %}
+                    {% if message.is_image %}
+                    <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
+                        <img src="{{ message.file.url }}" alt="{{ message.original_filename }}"
+                            class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
+                    </a>
+                    {% else %}
+                    <a href="{{ message.file.url }}" target="_blank"
+                        class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-white text-sm"
+                        style="background: var(--accent);">
+                        <span class="material-symbols-outlined">description</span>
+                        <span class="truncate">{{ message.original_filename }}</span>
+                        <span class="material-symbols-outlined text-sm">download</span>
+                    </a>
+                    {% endif %}
                     {% endif %}
                     {% if message.content %}
                     <div id="msg-edit-{{ message.id }}" class="msg-sent px-4 py-3 text-sm shadow-sm">
@@ -67,8 +75,7 @@
                     {% endif %}
                     <div id="edit-{{ message.id }}" class="hidden">
                         <textarea id="edit-input-{{ message.id }}"
-                            class="w-full rounded-2xl px-4 py-3 text-sm resize-none shadow-sm"
-                            style="background: var(--bg-card); color: var(--text-primary);
+                            class="w-full rounded-2xl px-4 py-3 text-sm resize-none shadow-sm" style="background: var(--bg-card); color: var(--text-primary);
                                    border: 2px solid var(--accent); outline: none;"
                             rows="2">{{ message.content }}</textarea>
                         <div class="flex gap-2 mt-1 justify-end">
@@ -89,9 +96,9 @@
             {% else %}
             <!-- Received message (left side) -->
             <div class="flex gap-3">
-                {% if message.user.userprofile.avatar %}
+                {% if message.user.userprofile.profile_image %}
                 <img class="rounded-full w-11 h-11 object-cover flex-shrink-0 mt-2"
-                    src="{{ message.user.userprofile.avatar.url }}" alt="Avatar">
+                    src="{{ message.user.userprofile.profile_image.url }}" alt="Avatar">
                 {% else %}
                 <div class="flex items-center justify-center rounded-full w-11 h-11 flex-shrink-0 t-accent-icon-wrap">
                     <span class="material-symbols-outlined" style="color: var(--accent);">person</span>
@@ -103,20 +110,20 @@
                         · {{ message.timestamp|timesince }} ago
                     </p>
                     {% if message.file %}
-                        {% if message.is_image %}
-                        <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
-                            <img src="{{ message.file.url }}" alt="{{ message.original_filename }}" 
-                                class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
-                        </a>
-                        {% else %}
-                        <a href="{{ message.file.url }}" target="_blank" 
-                            class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-sm"
-                            style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
-                            <span class="material-symbols-outlined" style="color: var(--accent);">description</span>
-                            <span class="truncate">{{ message.original_filename }}</span>
-                            <span class="material-symbols-outlined text-sm" style="color: var(--accent);">download</span>
-                        </a>
-                        {% endif %}
+                    {% if message.is_image %}
+                    <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
+                        <img src="{{ message.file.url }}" alt="{{ message.original_filename }}"
+                            class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
+                    </a>
+                    {% else %}
+                    <a href="{{ message.file.url }}" target="_blank"
+                        class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-sm"
+                        style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
+                        <span class="material-symbols-outlined" style="color: var(--accent);">description</span>
+                        <span class="truncate">{{ message.original_filename }}</span>
+                        <span class="material-symbols-outlined text-sm" style="color: var(--accent);">download</span>
+                    </a>
+                    {% endif %}
                     {% endif %}
                     {% if message.content %}
                     <div class="msg-received px-4 py-3 text-sm shadow-sm">{{ message.content }}</div>
@@ -130,14 +137,16 @@
                     style="background: linear-gradient(135deg, #E8B4D4 0%, #C4B5FD 100%);">
                     <span class="material-symbols-outlined text-4xl text-white">chat</span>
                 </div>
-                <h3 class="text-xl font-bold t-text-primary mb-2">{% if other_user %}Chat with {{ other_user.username }}{% else %}Welcome to #{{ room_name }}{% endif %}</h3>
+                <h3 class="text-xl font-bold t-text-primary mb-2">{% if other_user %}Chat with {{ other_user.username
+                    }}{% else %}Welcome to #{{ room_name }}{% endif %}</h3>
                 <p class="text-sm t-text-muted">This is the start of your conversation.<br>Say hello!</p>
             </div>
             {% endfor %}
         </div>
 
         <!-- File Preview Area -->
-        <div id="filePreview" class="hidden p-3 border-t" style="background: var(--bg-card); border-color: var(--border-card);">
+        <div id="filePreview" class="hidden p-3 border-t"
+            style="background: var(--bg-card); border-color: var(--border-card);">
             <div class="flex items-center gap-2 flex-wrap" id="filePreviewList"></div>
         </div>
 
@@ -145,15 +154,13 @@
         <div class="p-4" style="background: var(--bg-card); border-top: 1px solid var(--border-card);">
             <div class="flex gap-3 items-center">
                 <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
-                <button id="attachBtn" onclick="document.getElementById('fileInput').click()" 
+                <button id="attachBtn" onclick="document.getElementById('fileInput').click()"
                     class="w-10 h-10 rounded-full flex items-center justify-center transition hover:opacity-80"
-                    style="background: var(--accent-light); color: var(--accent);"
-                    title="Upload file or image">
+                    style="background: var(--accent-light); color: var(--accent);" title="Upload file or image">
                     <span class="material-symbols-outlined">attach_file</span>
                 </button>
                 <input id="messageInput" type="text" placeholder="Type a message..."
-                    class="flex-1 rounded-full px-5 py-3 text-sm"
-                    style="background: var(--bg-input); color: var(--text-primary);
+                    class="flex-1 rounded-full px-5 py-3 text-sm" style="background: var(--bg-input); color: var(--text-primary);
                            border: none; outline: none;">
                 <button id="sendBtn" onclick="sendMessage()"
                     class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition hover:opacity-90"
@@ -253,14 +260,14 @@
     function sendMessage() {
         const input = document.getElementById('messageInput');
         const msg = input.value.trim();
-        
+
         // If files are selected, upload them
         if (selectedFiles.length > 0) {
             uploadFiles(msg);
             input.value = '';
             return;
         }
-        
+
         if (!msg) return;
         socket.send(JSON.stringify({ message: msg }));
         input.value = '';
@@ -270,12 +277,12 @@
         const sendBtn = document.getElementById('sendBtn');
         sendBtn.disabled = true;
         sendBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
-        
+
         for (const file of selectedFiles) {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('message', messageText);
-            
+
             try {
                 const res = await fetch(`/chat/${roomName}/upload/`, {
                     method: 'POST',
@@ -283,7 +290,7 @@
                     body: formData
                 });
                 const data = await res.json();
-                
+
                 if (data.ok) {
                     // Broadcast to other users
                     socket.send(JSON.stringify({
@@ -295,7 +302,7 @@
                         content: data.content,
                         username: data.username
                     }));
-                    
+
                     // Add message to UI immediately
                     addFileMessageToUI(data, true);
                 } else {
@@ -305,11 +312,11 @@
                 console.error('Upload error:', err);
                 alert('Upload failed: ' + err.message);
             }
-            
+
             // Clear message text after first file (only add caption once)
             messageText = '';
         }
-        
+
         // Reset
         selectedFiles = [];
         updateFilePreview();
@@ -321,9 +328,9 @@
     function addFileMessageToUI(data, isSent) {
         const emptyState = chatLog.querySelector('.flex.flex-col.items-center');
         if (emptyState) emptyState.remove();
-        
+
         const div = document.createElement('div');
-        
+
         let fileHtml = '';
         if (data.is_image) {
             fileHtml = `<a href="${data.file_url}" target="_blank" class="block mb-2">
@@ -338,9 +345,9 @@
                 <span class="material-symbols-outlined text-sm">download</span>
             </a>`;
         }
-        
+
         const contentHtml = data.content ? `<div class="${isSent ? 'msg-sent' : 'msg-received'} px-4 py-3 text-sm shadow-sm">${data.content}</div>` : '';
-        
+
         if (isSent) {
             div.className = 'flex justify-end message-row group';
             div.setAttribute('data-msg-id', data.message_id);
@@ -370,7 +377,7 @@
                     ${contentHtml}
                 </div>`;
         }
-        
+
         chatLog.appendChild(div);
         chatLog.scrollTop = chatLog.scrollHeight;
     }
@@ -428,7 +435,7 @@
     const filePreview = document.getElementById('filePreview');
     const filePreviewList = document.getElementById('filePreviewList');
 
-    fileInput.addEventListener('change', function(e) {
+    fileInput.addEventListener('change', function (e) {
         selectedFiles = Array.from(e.target.files);
         updateFilePreview();
     });
@@ -475,7 +482,7 @@
 
     /* Message bubbles */
     .msg-sent {
-        background: linear-gradient(135deg, #9B76B4 0%, #7c3aed 100%);
+        background: #585aa1;
         color: white;
         border-radius: 18px 18px 4px 18px;
     }
@@ -498,6 +505,7 @@
         cursor: pointer;
         transition: background 0.15s;
     }
+
     .info-link:hover {
         background: var(--bg-nav-hover);
     }
@@ -535,8 +543,9 @@
         cursor: pointer;
         transition: all 0.15s;
     }
+
     .action-btn:hover {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         transform: scale(1.1);
     }
 </style>

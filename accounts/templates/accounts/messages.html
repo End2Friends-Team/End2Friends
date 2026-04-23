@@ -16,16 +16,24 @@
             <a href="{% url 'chat_room' convo.room_id %}"
                 class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-purple-50 cursor-pointer transition">
                 <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span class="text-purple-600 font-bold">
-                        {% for participant in convo.participants.all %}
-                            {% if participant != request.user %}{{ participant.username|first|upper }}{% endif %}
-                        {% endfor %}
-                    </span>
+                    {% for participant in convo.participants.all %}
+                    {% if participant != request.user %}
+                    {% if participant.userprofile.profile_image %}
+                    <img class="rounded-full w-10 h-10 object-cover flex-shrink-0"
+                        src="{{ participant.userprofile.profile_image.url }}" alt="Avatar">
+                    {% else %}
+                    <div
+                        class="flex items-center justify-center rounded-full t-accent-icon-wrap w-10 h-10 flex-shrink-0">
+                        <span class="material-symbols-outlined" style="color: var(--accent);">person</span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
                 </div>
                 <div class="flex-1">
                     <p class="text-gray-800 font-medium">
                         {% for participant in convo.participants.all %}
-                            {% if participant != request.user %}{{ participant.username }}{% endif %}
+                        {% if participant != request.user %}{{ participant.username }}{% endif %}
                         {% endfor %}
                     </p>
                 </div>

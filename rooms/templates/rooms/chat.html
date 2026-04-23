@@ -1,38 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}{{ room.name }}{% endblock %}
-{% block styles %}
-<style>
-    #leftSidebar.collapsed {
-        width: 0;
-        padding: 0;
-    }
-    #leftSidebar.collapsed .sidebar-text,
-    #leftSidebar.collapsed .sidebar-content {
-        opacity: 0;
-        visibility: hidden;
-    }
-    #leftSidebar.collapsed #leftToggleIcon {
-        transform: rotate(180deg);
-    }
-    #leftSidebarToggle {
-        position: absolute;
-        right: -12px;
-        z-index: 50;
-    }
-</style>
-{% endblock %}
 {% block content %}
 <div class="flex w-full flex-1 h-screen max-h-screen overflow-hidden">
-    <!-- Left Sidebar (Collapsible) -->
-    <div id="leftSidebar" class="w-52 bg-violet-100/80 flex flex-col border-r border-purple-200 transition-all duration-300 relative">
-        <!-- Collapse Toggle Button -->
-        <button id="leftSidebarToggle" onclick="toggleLeftSidebar()" 
-                class="absolute -right-3 top-4 z-10 w-6 h-6 bg-white border border-purple-200 rounded-full shadow-sm flex items-center justify-center hover:bg-purple-50 transition">
-            <span class="material-symbols-outlined text-purple-600 text-sm" id="leftToggleIcon">chevron_left</span>
-        </button>
+    <!-- Left Sidebar-->
+    <div id="leftSidebar" class="w-52 bg-violet-100/80 flex flex-col border-r border-purple-200 transition-all duration-300 relative" style="background: var(--bg-sidebar); border-right: 1px solid var(--border-main);">
         
         <!-- Room Header -->
-        <div class="p-3 flex justify-between items-center bg-purple-200/50">
+        <div class="p-3 flex justify-between items-center">
             <h1 class="font-semibold text-gray-800 truncate sidebar-text">{{ room.name }}</h1>
             <div class="flex gap-1">
                 {% if membership.role == 'owner' %}
@@ -45,11 +19,11 @@
 
         {% if membership.role == 'owner' %}
         <!-- Invite Code -->
-        <div class="px-3 py-2 bg-purple-50 border-b border-purple-200 sidebar-content">
+        <div class="px-3 py-2 sidebar-content" style="background: var(--bg-item); border-bottom: 1px solid var(--border-main);">
             <div class="flex items-center gap-1">
-                <code id="inviteCode" class="text-xs font-mono text-purple-600 flex-1 truncate">{{ room.invite_code }}</code>
-                <button onclick="copyInviteCode()" class="p-1 hover:bg-purple-200 rounded" title="Copy invite code">
-                    <span class="material-symbols-outlined text-purple-500 text-sm">content_copy</span>
+                <code id="inviteCode" class="text-xs font-mono flex-1 truncate" style="color: var(--accent);">{{ room.invite_code }}</code>
+                <button onclick="copyInviteCode()" class="p-1 rounded transition" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'" title="Copy invite code">
+                    <span class="material-symbols-outlined text-sm" style="color: var(--accent);">content_copy</span>
                 </button>
             </div>
         </div>
@@ -67,17 +41,16 @@
 
         <!-- Channel List -->
         <div class="flex-1 overflow-y-auto px-2 space-y-0.5 sidebar-content">
-            {% if channels %}
-                {% for channel in channels %}
-                <a href="{% url 'rooms:channel_chat' room.id channel.id %}" 
-                   class="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition text-gray-600 hover:bg-purple-200/50 hover:text-purple-700">
-                    <span class="{% if channel.color == 'blue' %}text-blue-400{% elif channel.color == 'green' %}text-green-400{% elif channel.color == 'red' %}text-red-400{% elif channel.color == 'orange' %}text-orange-400{% elif channel.color == 'pink' %}text-pink-400{% elif channel.color == 'yellow' %}text-yellow-500{% elif channel.color == 'gray' %}text-gray-400{% else %}text-purple-400{% endif %}">{% if channel.emoji %}{{ channel.emoji }}{% else %}#{% endif %}</span>
-                    <span class="truncate">{{ channel.name }}</span>
-                </a>
-                {% endfor %}
-            {% else %}
-                <p class="px-2 py-4 text-center text-gray-400 text-xs">No channels yet</p>
-            {% endif %}
+            {% for ch in channels %}
+            <a href="{% url 'rooms:channel_chat' room.id ch.id %}" 
+               class="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition channel-link {% if ch.id == channel.id %}active{% endif %}"
+               style="{% if ch.id == channel.id %}background: var(--bg-nav-active); color: var(--text-nav-active); font-weight: 500;{% else %}color: var(--text-secondary);{% endif %}">
+                <span class="{% if ch.color == 'blue' %}text-blue-400{% elif ch.color == 'green' %}text-green-400{% elif ch.color == 'red' %}text-red-400{% elif ch.color == 'orange' %}text-orange-400{% elif ch.color == 'pink' %}text-pink-400{% elif ch.color == 'yellow' %}text-yellow-500{% elif ch.color == 'gray' %}text-gray-400{% else %}text-purple-400{% endif %}">{% if ch.emoji %}{{ ch.emoji }}{% else %}#{% endif %}</span>
+                <span class="truncate">{{ ch.name }}</span>
+            </a>
+            {% empty %}
+            <p class="px-2 py-4 text-center t-text-muted text-xs">No channels yet</p>
+            {% endfor %}
         </div>
     </div>
 
@@ -151,7 +124,7 @@
         </div>
 
         <!-- Members Section -->
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto pt-10">
             <div class="px-4 py-2 flex items-center gap-2 border-b border-gray-100">
                 <span class="material-symbols-outlined text-gray-500 text-lg">group</span>
                 <h3 class="font-semibold text-gray-700 text-sm">Members ({{ members|length }})</h3>
@@ -278,20 +251,13 @@
     function copyInviteCode() {
         const code = document.getElementById('inviteCode').textContent;
         navigator.clipboard.writeText(code).then(() => {
-            alert('Invite code copied!');
+        const toast = document.createElement('div');
+        toast.textContent = 'Invite code copied!';
+        toast.className = 'fixed bottom-4 right-4 px-4 py-2 text-white text-sm rounded-lg shadow-lg';
+        toast.style.background = 'var(--accent)';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
         });
-    }
-
-    function openChannelModal() {
-        document.getElementById('channelModal').classList.remove('hidden');
-        document.getElementById('channelModal').classList.add('flex');
-        document.getElementById('channel_name').focus();
-    }
-
-    function closeChannelModal() {
-        document.getElementById('channelModal').classList.add('hidden');
-        document.getElementById('channelModal').classList.remove('flex');
-        document.getElementById('channel_name').value = '';
     }
 
     // Pomodoro Timer
@@ -343,19 +309,6 @@
 
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
-    }
-
-    // Left Sidebar Toggle
-    const LEFT_SIDEBAR_KEY = 'room_left_sidebar_collapsed';
-    
-    function toggleLeftSidebar() {
-        const sidebar = document.getElementById('leftSidebar');
-        sidebar.classList.toggle('collapsed');
-        localStorage.setItem(LEFT_SIDEBAR_KEY, sidebar.classList.contains('collapsed'));
-    }
-
-    if (localStorage.getItem(LEFT_SIDEBAR_KEY) === 'true') {
-        document.getElementById('leftSidebar').classList.add('collapsed');
     }
 </script>
 
