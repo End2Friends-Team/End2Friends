@@ -152,11 +152,11 @@ def save_avatar(request):
     public_id = data.get('public_id', '').strip()
     if public_id:
         profile = request.user.userprofile
-        profile.profile_image = public_id
+        # Cloudinary needs the extension to generate the correct URL
+        profile.profile_image = public_id + '.jpg'
         profile.save()
         return JsonResponse({'ok': True})
     return JsonResponse({'ok': False}, status=400)
-
 
 @login_required
 def profile_view(request):
