@@ -236,6 +236,7 @@
             <div class="flex items-center gap-2 mb-3">
                 <span class="material-symbols-outlined" style="color: var(--accent);">timer</span>
                 <h3 class="font-semibold t-text-primary">Pomodoro Timer</h3>
+                <span id="timerStatus" class="text-xs px-2 py-1 bg-gray-100 t-text-muted rounded-full hidden">Active</span>
             </div>
             <div id="pomodoroContainer">
                 <div class="text-center py-4">
@@ -255,6 +256,12 @@
                         <button onclick="setTimer(25)" class="px-2 py-1 text-xs rounded transition" style="background: var(--accent-light); color: var(--accent-text);">25m</button>
                         <button onclick="setTimer(15)" class="px-2 py-1 text-xs rounded transition" style="background: var(--accent-light); color: var(--accent-text);">15m</button>
                         <button onclick="setTimer(5)" class="px-2 py-1 text-xs rounded transition" style="background: var(--accent-light); color: var(--accent-text);">5m</button>
+                    </div>
+                    <div class="mt-3 text-xs t-text-muted">
+                        <label class="flex items-center gap-1">
+                            <input type="checkbox" id="muteMessages" checked class="rounded">
+                            <span>Mute messages during timer</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -459,6 +466,34 @@
 </div>
 {% endif %}
 
+<!-- Pomodoro Message Modal -->
+<div id="pomodoroBlockModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4 w-full">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-gray-600">timer</span>
+            </div>
+            <h2 class="text-lg font-bold t-text-primary">Pomodoro Timer Active</h2>
+        </div>
+        <p class="t-text-secondary mb-4">A Pomodoro timer is currently active in this room. Messages are muted to help members focus.</p>
+        <div class="bg-purple-100 border border-purple-200 rounded-lg p-3 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-gray-600 text-sm">schedule</span>
+                <span class="text-sm font-medium bg-purple-100">Time remaining:</span>
+            </div>
+            <div class="text-2xl font-bold text-gray-600" id="modalTimerDisplay">25:00</div>
+        </div>
+        <div class="flex gap-3 justify-end">
+            <button onclick="closePomodoroBlockModal()" class="t-btn-secondary">
+                Wait
+            </button>
+            <button onclick="forceSendMessage()" class="px-4 py-2 bg-purple-200 text-gray-800 rounded-lg hover:bg-purple-400 transition">
+                Send Anyway (Important)
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     const roomId = "{{ room.id }}";
     const channelId = "{{ channel.id }}";
@@ -487,6 +522,32 @@ const currentUser = "{{ request.user.username }}";
         const data = JSON.parse(e.data);
         const container = document.getElementById('messagesContainer');
         const list = document.getElementById('messagesList');
+        
+        // Pomodoro state updates
+        if (data.type === 'pomodoro_started') {
+            isTimerActive = true;
+            timeRemaining = data.duration;
+            updateTimerDisplay();
+            document.getElementById('timerStatus').classList.remove('hidden');
+            document.getElementById('timerStatus').textContent = 'Active';
+            document.getElementById('timerStatus').className = 'text-xs px-2 py-1 bg-purple-100 text-gray-600 rounded-full';
+            return;
+        }
+        
+        if (data.type === 'pomodoro_paused') {
+            isTimerActive = false;
+            document.getElementById('timerStatus').textContent = 'Paused';
+            document.getElementById('timerStatus').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
+            return;
+        }
+        
+        if (data.type === 'pomodoro_reset') {
+            isTimerActive = false;
+            timeRemaining = 25 * 60;
+            updateTimerDisplay();
+            document.getElementById('timerStatus').classList.add('hidden');
+            return;
+        }
         
         // Handle file upload from other users
         if (data.type === 'file_uploaded') {
@@ -525,11 +586,15 @@ const currentUser = "{{ request.user.username }}";
         const msgDiv = document.createElement('div');
         msgDiv.className = isOwn ? 'flex justify-end' : 'flex justify-start';
         
+        // indicator for force-sent messages
+        const isForced = data.force_send === true;
+        
         if (isOwn) {
             msgDiv.innerHTML = `
                 <div class="max-w-xs">
                     <div class="px-3 py-2 rounded-2xl rounded-br-sm" style="background: var(--accent); color: white;">
                         <p class="text-sm">${data.message}</p>
+                        ${isForced ? '<p class="text-xs opacity-75 mt-1">⚠️ Sent during Pomodoro</p>' : ''}
                     </div>
                     <p class="text-xs t-text-muted text-right mt-0.5">Just now</p>
                 </div>
@@ -540,6 +605,7 @@ const currentUser = "{{ request.user.username }}";
                     <p class="text-xs t-text-secondary mb-0.5">${data.user}</p>
                     <div class="px-3 py-2 rounded-2xl rounded-bl-sm" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-card);">
                         <p class="text-sm">${data.message}</p>
+                        ${isForced ? '<p class="text-xs opacity-75 mt-1">⚠️ Sent during Pomodoro</p>' : ''}
                     </div>
                     <p class="text-xs t-text-muted mt-0.5">Just now</p>
                 </div>
@@ -598,8 +664,12 @@ const currentUser = "{{ request.user.username }}";
         }
         
         if (msg) {
-            socket.send(JSON.stringify({ 'message': msg }));
-            input.value = '';
+            if (checkPomodoroStatus()) {
+                showPomodoroBlockModal(msg);
+            } else {
+                socket.send(JSON.stringify({ 'message': msg }));
+                input.value = '';
+            }
         }
     };
 
@@ -753,16 +823,35 @@ const currentUser = "{{ request.user.username }}";
     // Pomodoro Timer
     let timerInterval = null;
     let timeRemaining = 25 * 60; // 25 minutes in seconds
+    let isTimerActive = false;
+    let pendingMessage = '';
 
     function updateTimerDisplay() {
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
-        document.getElementById('timerDisplay').textContent = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('timerDisplay').textContent = display;
+        document.getElementById('modalTimerDisplay').textContent = display;
     }
 
     function startTimer() {
         if (timerInterval) return;
+        
+        isTimerActive = true;
+        const shouldMute = document.getElementById('muteMessages').checked;
+        
+        // timer is active
+        document.getElementById('timerStatus').classList.remove('hidden');
+        document.getElementById('timerStatus').textContent = 'Active';
+        document.getElementById('timerStatus').className = 'text-xs px-2 py-1 bg-purple-100 text-gray-600 rounded-full';
+        
+        // Notify other users
+        socket.send(JSON.stringify({
+            'type': 'pomodoro_started',
+            'duration': timeRemaining,
+            'muted': shouldMute
+        }));
+        
         timerInterval = setInterval(() => {
             if (timeRemaining > 0) {
                 timeRemaining--;
@@ -784,18 +873,64 @@ const currentUser = "{{ request.user.username }}";
             clearInterval(timerInterval);
             timerInterval = null;
         }
+        
+        isTimerActive = false;
+        
+        // timer is paused
+        document.getElementById('timerStatus').textContent = 'Paused';
+        document.getElementById('timerStatus').className = 'text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full';
+        
+        socket.send(JSON.stringify({
+            'type': 'pomodoro_paused'
+        }));
     }
 
     function resetTimer() {
         pauseTimer();
         timeRemaining = 25 * 60;
         updateTimerDisplay();
+        
+        document.getElementById('timerStatus').classList.add('hidden');
+        
+        // timer has reset
+        socket.send(JSON.stringify({
+            'type': 'pomodoro_reset'
+        }));
     }
 
     function setTimer(minutes) {
         pauseTimer();
         timeRemaining = minutes * 60;
         updateTimerDisplay();
+    }
+
+    function checkPomodoroStatus() {
+        const shouldMute = document.getElementById('muteMessages').checked;
+        return isTimerActive && shouldMute;
+    }
+
+    function showPomodoroBlockModal(message) {
+        pendingMessage = message;
+        document.getElementById('pomodoroBlockModal').classList.remove('hidden');
+        document.getElementById('pomodoroBlockModal').classList.add('flex');
+    }
+
+    function closePomodoroBlockModal() {
+        document.getElementById('pomodoroBlockModal').classList.add('hidden');
+        document.getElementById('pomodoroBlockModal').classList.remove('flex');
+        pendingMessage = '';
+        document.getElementById('messageInput').value = '';
+    }
+
+    function forceSendMessage() {
+        if (pendingMessage.trim()) {
+            socket.send(JSON.stringify({
+                'message': pendingMessage,
+                'force_send': true
+            }));
+            document.getElementById('messageInput').value = '';
+        }
+        closePomodoroBlockModal();
     }
 
     // Request notification permission

@@ -267,6 +267,48 @@ class ChannelConsumer(AsyncWebsocketConsumer):
             if not user.is_authenticated:
                 return
 
+            # pomodoro timer state messages
+            if msg_type == "pomodoro_started":
+                # Save to database
+                await self.save_pomodoro_session(user, "running", data.get("duration", 25 * 60), data.get("muted", True))
+                
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "pomodoro_started",
+                        "duration": data.get("duration", 25 * 60),
+                        "muted": data.get("muted", True),
+                        "user": user.username,
+                    },
+                )
+                return
+
+            if msg_type == "pomodoro_paused":
+                # Update database
+                await self.update_pomodoro_session("paused")
+                
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "pomodoro_paused",
+                        "user": user.username,
+                    },
+                )
+                return
+
+            if msg_type == "pomodoro_reset":
+                # Update database
+                await self.update_pomodoro_session("not_started")
+                
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "pomodoro_reset",
+                        "user": user.username,
+                    },
+                )
+                return
+
             # Handle file upload broadcast
             if msg_type == "file_upload":
                 await self.channel_layer.group_send(
@@ -339,6 +381,7 @@ class ChannelConsumer(AsyncWebsocketConsumer):
                     "type": "chat_message",
                     "message": message,
                     "user": user.username,
+                    "force_send": data.get("force_send", False),
                 },
             )
 
@@ -352,6 +395,7 @@ class ChannelConsumer(AsyncWebsocketConsumer):
                 text_data=json.dumps({
                     "message": event["message"],
                     "user": event["user"],
+                    "force_send": event.get("force_send", False),
                 })
             )
         except Exception as e:
@@ -393,6 +437,41 @@ class ChannelConsumer(AsyncWebsocketConsumer):
             }))
         except Exception as e:
             print(f"[WS Channel ERROR] presence_update failed: {e}")
+
+    async def pomodoro_started(self, event):
+        try:
+            await self.send(
+                text_data=json.dumps({
+                    "type": "pomodoro_started",
+                    "duration": event["duration"],
+                    "muted": event["muted"],
+                    "user": event["user"],
+                })
+            )
+        except Exception as e:
+            print(f"[WS Channel ERROR] Pomodoro started notification failed: {e}")
+
+    async def pomodoro_paused(self, event):
+        try:
+            await self.send(
+                text_data=json.dumps({
+                    "type": "pomodoro_paused",
+                    "user": event["user"],
+                })
+            )
+        except Exception as e:
+            print(f"[WS Channel ERROR] Pomodoro paused notification failed: {e}")
+
+    async def pomodoro_reset(self, event):
+        try:
+            await self.send(
+                text_data=json.dumps({
+                    "type": "pomodoro_reset",
+                    "user": event["user"],
+                })
+            )
+        except Exception as e:
+            print(f"[WS Channel ERROR] Pomodoro reset notification failed: {e}")
 
     async def read_receipt_update(self, event):
         """Send read receipt update to client."""
@@ -437,6 +516,55 @@ class ChannelConsumer(AsyncWebsocketConsumer):
             return channel.room_id
         except Channel.DoesNotExist:
             return None
+
+    @database_sync_to_async
+    def save_pomodoro_session(self, user, status, duration, is_muted):
+        from rooms.models import RoomPomodoroSession, Channel
+        try:
+            channel = Channel.objects.get(id=self.channel_id)
+            room = channel.room
+            
+            # Get or create Pomodoro session for this room
+            session, created = RoomPomodoroSession.objects.get_or_create(
+                room=room,
+                defaults={
+                    'started_by': user,
+                    'status': status,
+                    'session_duration': duration // 60,  # Convert seconds to minutes
+                    'is_muted': is_muted,
+                }
+            )
+            
+            if not created:
+                # Update existing session
+                session.started_by = user
+                session.status = status
+                session.session_duration = duration // 60
+                session.is_muted = is_muted
+                session.save()
+            
+            print(f"[WS Channel] Saved Pomodoro session: status={status}, duration={duration}s, muted={is_muted}")
+            return session.id
+        except Exception as e:
+            print(f"[WS Channel ERROR] Failed to save Pomodoro session: {e}")
+            return None
+
+    @database_sync_to_async
+    def update_pomodoro_session(self, status):
+        from rooms.models import RoomPomodoroSession, Channel
+        try:
+            channel = Channel.objects.get(id=self.channel_id)
+            room = channel.room
+            
+            session = RoomPomodoroSession.objects.filter(room=room).first()
+            if session:
+                session.status = status
+                session.save()
+                print(f"[WS Channel] Updated Pomodoro session status to: {status}")
+            return True
+        except Exception as e:
+            print(f"[WS Channel ERROR] Failed to update Pomodoro session: {e}")
+            return False
 
     @database_sync_to_async
     def update_user_presence(self, user, is_connecting):
