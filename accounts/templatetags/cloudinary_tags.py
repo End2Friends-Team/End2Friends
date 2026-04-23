@@ -23,12 +23,19 @@ def file_url(file_field):
     if not file_field:
         return ''
     
+    # First try to get URL from storage backend (works for both Cloudinary and local)
+    if hasattr(file_field, 'url'):
+        url = file_field.url
+        # If it's already a full URL, use it
+        if url and url.startswith('http'):
+            return url
+    
+    # Fallback: construct Cloudinary URL manually
     cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME', '')
     if cloud_name:
-        # Production: use Cloudinary URL with raw/upload for files
         name = file_field.name if hasattr(file_field, 'name') else str(file_field)
-        # Use raw/upload which works for all file types including images
-        return f'https://res.cloudinary.com/{cloud_name}/raw/upload/{name}'
-    else:
-        # Development: use local URL
-        return file_field.url if hasattr(file_field, 'url') else ''
+        # Try image/upload for images (most common)
+        return f'https://res.cloudinary.com/{cloud_name}/image/upload/v1/{name}'
+    
+    # Local development fallback
+    return file_field.url if hasattr(file_field, 'url') else ''

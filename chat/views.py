@@ -134,16 +134,13 @@ def upload_file(request, room_name):
             file=uploaded_file
         )
 
-        # Construct proper file URL (handles both Cloudinary and local storage)
+        # Get file URL from storage backend
         file_url = None
         if msg.file:
-            cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME')
-            if cloud_name:
-                # Cloudinary URL - use raw/upload for MediaCloudinaryStorage files
-                file_url = f'https://res.cloudinary.com/{cloud_name}/raw/upload/{msg.file.name}'
-            else:
-                # Local storage URL
+            try:
                 file_url = msg.file.url
+            except Exception:
+                file_url = None
 
         return JsonResponse({
             "ok": True,
