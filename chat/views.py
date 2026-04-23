@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from .models import Conversation, Message
 import json
+import os
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -124,7 +125,7 @@ def upload_file(request, room_name):
         return JsonResponse({"error": "No file provided"}, status=400)
 
     try:
-        # STEP 1 — Create message WITHOUT file
+        # STEP 1 — Create message with file
         msg = Message.objects.create(
             conversation=conversation,
             user=request.user,
@@ -133,10 +134,21 @@ def upload_file(request, room_name):
             file=uploaded_file
         )
 
+        # Construct proper file URL (handles both Cloudinary and local storage)
+        file_url = None
+        if msg.file:
+            cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME')
+            if cloud_name:
+                # Cloudinary URL
+                file_url = f'https://res.cloudinary.com/{cloud_name}/image/upload/{msg.file.name}'
+            else:
+                # Local storage URL
+                file_url = msg.file.url
+
         return JsonResponse({
             "ok": True,
             "message_id": msg.id,
-            "file_url": msg.file.url if msg.file else None,
+            "file_url": file_url,
             "filename": msg.original_filename,
             "is_image": msg.is_image,
             "content": msg.content,

@@ -138,8 +138,7 @@
                     style="background: linear-gradient(135deg, #E8B4D4 0%, #C4B5FD 100%);">
                     <span class="material-symbols-outlined text-4xl text-white">chat</span>
                 </div>
-                <h3 class="text-xl font-bold t-text-primary mb-2">{% if other_user %}Chat with {{ other_user.username
-                    }}{% else %}Welcome to #{{ room_name }}{% endif %}</h3>
+                <h3 class="text-xl font-bold t-text-primary mb-2">{% if other_user %}Chat with {{ other_user.username }}{% else %}Welcome to #{{ room_name }}{% endif %}</h3>
                 <p class="text-sm t-text-muted">This is the start of your conversation.<br>Say hello!</p>
             </div>
             {% endfor %}
@@ -316,7 +315,7 @@
                 if (data.ok) {
                     // Broadcast to other users
                     socket.send(JSON.stringify({
-                        type: 'file_uploaded',
+                        type: 'file_upload',
                         message_id: data.message_id,
                         file_url: data.file_url,
                         filename: data.filename,

@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 import json
 import re
+import os
 from .models import StudyRoom, RoomMembership, RoomInvite, Channel, Message, MessageMention, MessageReadStatus
 
 User = get_user_model()
@@ -383,10 +384,21 @@ def channel_upload_file(request, room_id, channel_id):
             original_filename=uploaded_file.name
         )
         
+        # Construct proper file URL (handles both Cloudinary and local storage)
+        file_url = None
+        if msg.file:
+            cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME')
+            if cloud_name:
+                # Cloudinary URL
+                file_url = f'https://res.cloudinary.com/{cloud_name}/image/upload/{msg.file.name}'
+            else:
+                # Local storage URL
+                file_url = msg.file.url
+        
         return JsonResponse({
             "ok": True,
             "message_id": msg.id,
-            "file_url": msg.file.url if msg.file else None,
+            "file_url": file_url,
             "filename": msg.original_filename,
             "is_image": msg.is_image,
             "content": msg.content,
