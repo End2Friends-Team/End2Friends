@@ -1,13 +1,24 @@
-# End2Friend
 
- A collaborative study platform to chat with fellow students, join focused study rooms, and stay productive with built-in tools all while protecting information.
+[![End2Friend Tech Stack](https://github-readme-tech-stack.vercel.app/api/cards?title=End2Friend+Tech+Stack&lineCount=2&line1=django,django,092E20;postgresql,postgresql,4169E1;redis,redis,DC382D&line2=tailwindcss,tailwindcss,06B6D4;python,python,3776AB)](https://github-readme-tech-stack.vercel.app)
 
- ## Description
-  End2Friend, is a web-based platform to give students a safer and more organized place to communicate and work together.This application will include real-time messaging, channels for different topics, and features that let users turn messages into reminders and to-dos. It will also include secure file sharing and private messaging with stronger protections than most common chat apps.
-  
-  Alongside communication tools, End2Friend will offer built-in study features like a Pomodoro timer, private study rooms, and secure file sharing. The goal is to combine communication, productivity, and security in one place so students don't have to switch between multiple apps or worry about their data being exposed. The system is designed to be easy to use while still giving users more control over their privacy.
+# End2Friend 
+ End2Friend is a collaborative study platform to chat with fellow students, join focused study rooms, and stay productive with built-in tools all while protecting shared information.
 
-  ## Installing
+  ## Features
+  - Account Creation 
+  - Real-time private and group messaging.
+  - Built-in study tools (Pomodoro timer, reminders, to-do dashboard.)
+  - end to 
+  - Private room creation with invite codes.
+  - Basic profile customization.
+  - Dark mode theme.
+
+
+
+  ## Getting Started
+  The web application can be used online at [End2Friend](https://end2friends-1.onrender.com/) hosted on Render.
+
+  ### Installation
   1. Clone the repository 
   ```sh
   git clone https://github.com/grizzzyy/End2Friends.git
@@ -25,16 +36,14 @@
   ```sh
   pip install -r requirements.txt
   ```
-  5. Navigate to development branch
-  ```sh
-  git checkout development
-  ```
-  6. Run database migrations 
-  ```sh
-  python manage.py migrate 
-  ```
-  7. Start the server 
+  5. Start the server 
   ```sh
   python manage.py runserver
   ```
+  6. The development server will be shown on http://127.0.0.1:8000/.
 
+## Developed By 
+- [Yvette Boyd](https://github.com/0ddev3)
+- [Angelina Lozano Arpi](https://github.com/alozano-arpi)
+- [Josh Veal](https://github.com/JoshV05)
+- [Griselda Ramirez Torrez](https://github.com/grizzzyy)
