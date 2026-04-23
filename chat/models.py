@@ -97,18 +97,23 @@ class Message(models.Model):
     def is_image(self):
         """
         Safe image detection:
-        - Uses MIME type when available (Cloudinary)
+        - Works with Cloudinary (no local file access)
+        - Handles missing or broken file paths
+        - Uses MIME type when available
         - Falls back to extension check
-        - Never attempts to open the file (prevents FileNotFoundError)
         """
         if not self.file:
             return False
 
-        # Cloudinary provides content_type on the file object
+        # Try MIME type first (Cloudinary sometimes provides this)
         content_type = getattr(self.file, 'content_type', None)
-        if content_type and content_type.startswith('image/'):
+        if isinstance(content_type, str) and content_type.startswith('image/'):
             return True
 
-        # Fallback: check extension (safe)
-        ext = os.path.splitext(self.file.name)[1].lower()
+        # Safe fallback: check extension
+        name = getattr(self.file, 'name', '')
+        if not isinstance(name, str) or '.' not in name:
+            return False
+
+        ext = os.path.splitext(name)[1].lower()
         return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']
