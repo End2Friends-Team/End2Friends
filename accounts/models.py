@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from cloudinary.models import CloudinaryField
 from PIL import Image
 
 # Represents a user account
@@ -18,8 +19,10 @@ class User(AbstractUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    profile_image = models.ImageField(
-        upload_to="profiles/",
+    # CHANGED: ImageField → CloudinaryField
+    profile_image = CloudinaryField(
+        'image',
+        folder='profiles',
         blank=True,
         null=True
     )
@@ -31,7 +34,6 @@ class UserProfile(models.Model):
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True)
 
-    
     connection_count = models.PositiveIntegerField(default=0, null=True)
 
     def __str__(self):
@@ -53,19 +55,15 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Add the link to the message that was flagged to create this task
     source_message = models.ForeignKey(
         'chat.Message',
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name='tasks'
-       )
-    
-    # Add a description field for more detail
-    description = models.TextField(blank=True)
-    # updated time stamp
-    updated_at = models.DateTimeField(auto_now=True)
+    )
 
+    description = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['due_date', '-priority']
@@ -90,29 +88,28 @@ class Channel(models.Model):
         return f"#{self.name}"
 
 
-# accounts/models.py — PomodoroSession, FIXED:
 class PomodoroSession(models.Model):
     STATUS_CHOICES = [
         ('not_started', 'Not Started'),
         ('running', 'Running'),
         ('paused', 'Paused'),
         ('break', 'Break'),
-        ('completed', 'Completed'), # <-- add this
+        ('completed', 'Completed'),
     ]
-    # CHANGED: OneToOneField → ForeignKey
+
     user = models.ForeignKey(
-    settings.AUTH_USER_MODEL,
-    on_delete=models.CASCADE,
-    related_name='pomodoro_sessions' # note: plural now
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='pomodoro_sessions'
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES,
-    default='not_started')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
     session_duration = models.PositiveIntegerField(default=25)
     break_duration = models.PositiveIntegerField(default=5)
-    cycles_completed = models.PositiveIntegerField(default=0) 
-    started_at = models.DateTimeField(auto_now_add=True) 
-    ended_at = models.DateTimeField(null=True, blank=True) 
+    cycles_completed = models.PositiveIntegerField(default=0)
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return f"{self.user.username} session {self.id}"
 
@@ -122,13 +119,12 @@ class Reminder(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reminders')
     title = models.CharField(max_length=200)
     remind_at = models.DateTimeField()
-    
-    # Change channel from CharField to ForeignKey
+
     channel = models.ForeignKey(
         'accounts.Channel',
         on_delete=models.SET_NULL,
         null=True, blank=True
-        )
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
