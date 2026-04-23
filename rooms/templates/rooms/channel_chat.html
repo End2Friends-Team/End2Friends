@@ -110,10 +110,10 @@
                     {% if msg.file %}
                         {% if msg.is_image %}
                         <div class="mb-1 rounded-xl overflow-hidden" style="max-width: 250px;">
-                            <img src="{{ msg.file.url }}" alt="{{ msg.original_filename }}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('{{ msg.file.url }}', '_blank')">
+                            <img src="{{ msg.file|file_url }}" alt="{{ msg.original_filename }}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('{{ msg.file|file_url }}', '_blank')">
                         </div>
                         {% else %}
-                        <a href="{{ msg.file.url }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-white text-sm" style="background: var(--accent);">
+                        <a href="{{ msg.file|file_url }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-white text-sm" style="background: var(--accent);">
                             <span class="material-symbols-outlined text-sm">description</span>
                             <span class="truncate">{{ msg.original_filename }}</span>
                             <span class="material-symbols-outlined text-sm">download</span>
@@ -148,10 +148,10 @@
                     {% if msg.file %}
                         {% if msg.is_image %}
                         <div class="mb-1 rounded-xl overflow-hidden" style="max-width: 250px;">
-                            <img src="{{ msg.file.url }}" alt="{{ msg.original_filename }}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('{{ msg.file.url }}', '_blank')">
+                            <img src="{{ msg.file|file_url }}" alt="{{ msg.original_filename }}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('{{ msg.file|file_url }}', '_blank')">
                         </div>
                         {% else %}
-                        <a href="{{ msg.file.url }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-sm" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
+                        <a href="{{ msg.file|file_url }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-sm" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
                             <span class="material-symbols-outlined text-sm" style="color: var(--accent);">description</span>
                             <span class="truncate">{{ msg.original_filename }}</span>
                             <span class="material-symbols-outlined text-sm" style="color: var(--accent);">download</span>
