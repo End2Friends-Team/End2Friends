@@ -19,7 +19,7 @@
     <style>
         /* ─── LIGHT THEME (matching landing page colors) ─── */
         :root {
-            --bg-page: #f2f1e5;
+            --bg-page: #eae6fe;
             --bg-sidebar: #ffffff;
             --bg-card: #ffffff;
             --bg-nav-hover: #e8e7dc;
@@ -429,11 +429,6 @@
                 <a href="{% url 'people' %}" class="nav-link {% if '/people/' in request.path %}active{% endif %}">
                     <span class="material-symbols-outlined flex-shrink-0">person_search</span>
                     <span class="nav-text">People</span>
-                </a>
-                <a href="{% url 'settings_page' %}"
-                    class="nav-link {% if '/settings/' in request.path %}active{% endif %}">
-                    <span class="material-symbols-outlined flex-shrink-0">settings</span>
-                    <span class="nav-text">Settings</span>
                 </a>
             </nav>
 
