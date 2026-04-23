@@ -1,29 +1,29 @@
 {% extends 'base.html' %}
+{% load cloudinary_tags %}
 {% block title %}Messages - End2Friend{% endblock %}
 
 {% block content %}
-<main class="flex-1 p-8">
+<main class="flex-1 p-8" style="background: var(--bg-page);">
 
     <header class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-800">Messages</h1>
-        <p class="text-gray-500 mt-1">Your direct messages and conversations</p>
+        <h1 class="text-2xl font-bold t-text-primary">Messages</h1>
+        <p class="t-text-secondary mt-1">Your direct messages and conversations</p>
     </header>
 
-    <div class="bg-white rounded-xl shadow p-6">
+    <div class="t-card p-6">
         {% if conversations %}
         <ul class="space-y-3">
             {% for convo in conversations %}
             <a href="{% url 'chat_room' convo.room_id %}"
-                class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-purple-50 cursor-pointer transition">
-                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                class="t-list-item flex items-center gap-3 p-4 cursor-pointer">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--accent-light);">
                     {% for participant in convo.participants.all %}
                     {% if participant != request.user %}
                     {% if participant.userprofile.profile_image %}
                     <img class="rounded-full w-10 h-10 object-cover flex-shrink-0"
-                        src="{{ participant.userprofile.profile_image.url }}" alt="Avatar">
+                        src="{{ participant.userprofile.profile_image|cloudinary_url }}" alt="Avatar">
                     {% else %}
-                    <div
-                        class="flex items-center justify-center rounded-full t-accent-icon-wrap w-10 h-10 flex-shrink-0">
+                    <div class="flex items-center justify-center rounded-full t-accent-icon-wrap w-10 h-10 flex-shrink-0">
                         <span class="material-symbols-outlined" style="color: var(--accent);">person</span>
                     </div>
                     {% endif %}
@@ -31,7 +31,7 @@
                     {% endfor %}
                 </div>
                 <div class="flex-1">
-                    <p class="text-gray-800 font-medium">
+                    <p class="t-text-primary font-medium">
                         {% for participant in convo.participants.all %}
                         {% if participant != request.user %}{{ participant.username }}{% endif %}
                         {% endfor %}
@@ -43,17 +43,14 @@
 
         {% else %}
         <div class="flex flex-col items-center justify-center py-16 text-center">
-            <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-                style="background: linear-gradient(135deg, #E8B4D4 0%, #C4B5FD 100%);">
-                <span class="material-symbols-outlined text-white text-4xl">mail</span>
+            <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6" style="background: var(--accent-light);">
+                <span class="material-symbols-outlined text-4xl" style="color: var(--accent);">mail</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-700 mb-2">No messages yet</h3>
-            <p class="text-gray-400 mb-6 max-w-sm">
+            <h3 class="text-xl font-bold t-text-primary mb-2">No messages yet</h3>
+            <p class="t-text-muted mb-6 max-w-sm">
                 Start a conversation with your friends to begin chatting!
             </p>
-            <a href="{% url 'people' %}"
-                class="px-6 py-3 text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
-                style="background: linear-gradient(135deg, #9B76B4 0%, #E8B4D4 100%);">
+            <a href="{% url 'people' %}" class="t-btn-primary">
                 Find People
             </a>
         </div>

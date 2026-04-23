@@ -50,7 +50,7 @@
                         <div class="relative">
                             {% if user.userprofile.profile_image %}
                             <img class="rounded-full w-24 h-24 object-cover"
-                                 src="{{ user.userprofile.profile_image.url }}"
+                                 src="https://res.cloudinary.com/{{ cloudinary_cloud_name }}/image/upload/{{ user.userprofile.profile_image }}"
                                  alt="Profile Image">
                             {% else %}
                             <img class="rounded-full w-24 h-24 object-cover"
@@ -160,7 +160,7 @@
         <div class="py-4 flex flex-col gap-4">
             <div class="flex justify-center">
                 {% if user.userprofile.profile_image %}
-                <img id="avatar-preview" class="rounded-full w-24 h-24 object-cover" src="{{ user.userprofile.profile_image.url }}" alt="Avatar">
+                <img id="avatar-preview" class="rounded-full w-24 h-24 object-cover" src="https://res.cloudinary.com/{{ cloudinary_cloud_name }}/image/upload/{{ user.userprofile.profile_image }}" alt="Avatar">
                 {% else %}
                 <img id="avatar-preview" class="rounded-full w-24 h-24 object-cover"
                     src="{% static 'images/profile_images/default_avatar.png' %}" alt="Default Avatar">
@@ -252,6 +252,5 @@
             console.error(err);
         }
     }
-</script>
 </script>
 {% endblock %}

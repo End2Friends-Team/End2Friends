@@ -119,35 +119,29 @@
     <!-- Activity & Study Rooms Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
-        <!-- Recent Activity Card -->
+        <!-- Public Rooms Card -->
         <div class="t-card p-6">
-            <h2 class="text-lg font-bold t-text-primary mb-4">Recent Activity</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold t-text-primary">Public Rooms</h2>
+                <a href="{% url 'rooms:room_list' %}" class="text-sm t-text-accent hover:underline">View all</a>
+            </div>
 
             <ul class="space-y-3">
-                {% for activity in activities %}
-                <li class="t-list-item flex items-center gap-3 p-3">
-                    <div class="t-accent-icon-wrap w-8 h-8 flex-shrink-0">
-                        {% if activity.activity_type == 'mention' %}
-                        <span class="material-symbols-outlined text-sm" style="color: var(--accent);">person</span>
-                        {% elif activity.activity_type == 'file' %}
-                        <span class="material-symbols-outlined text-sm" style="color: var(--accent);">draft</span>
-                        {% else %}
-                        <span class="material-symbols-outlined text-sm" style="color: var(--accent);">chat</span>
-                        {% endif %}
-                    </div>
-                    <div class="flex-1">
-                        {% if activity.activity_type == 'mention' %}
-                        <p class="t-text-primary text-sm">You were mentioned in <span class="font-medium">{{ activity.channel }}</span></p>
-                        {% elif activity.activity_type == 'file' %}
-                        <p class="t-text-primary text-sm">New file uploaded in <span class="font-medium">{{ activity.channel }}</span></p>
-                        {% else %}
-                        <p class="t-text-primary text-sm">{{ activity.count }} new messages in <span class="font-medium">{{ activity.channel }}</span></p>
-                        {% endif %}
-                        <p class="t-text-muted text-xs">{{ activity.created_at|timesince }} ago</p>
-                    </div>
+                {% for room in public_rooms %}
+                <li>
+                    <a href="{% url 'rooms:room_detail' room.id %}" class="t-list-item flex items-center gap-3 p-3 cursor-pointer">
+                        <div class="t-accent-icon-wrap w-8 h-8 flex-shrink-0">
+                            <span class="material-symbols-outlined text-sm" style="color: var(--accent);">groups</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="t-text-primary text-sm font-medium">{{ room.name }}</p>
+                            <p class="t-text-muted text-xs">{{ room.get_room_type_display }} · {{ room.memberships.count }} members</p>
+                        </div>
+                        <span class="text-xs t-text-accent font-medium px-2 py-1 rounded-full" style="background: var(--accent-light);">Join</span>
+                    </a>
                 </li>
                 {% empty %}
-                <li class="text-center t-text-muted text-sm py-4">No recent activity.</li>
+                <li class="text-center t-text-muted text-sm py-4">No public rooms available.</li>
                 {% endfor %}
             </ul>
         </div>

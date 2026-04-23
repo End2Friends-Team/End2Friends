@@ -1,61 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ room.name }}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2rem;
-            background: #f7f7f7;
-        }
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            max-width: 600px;
-            margin: auto;
-        }
-        h1 {
-            margin-top: 0;
-        }
-        .meta {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-        a.back {
-            display: inline-block;
-            margin-top: 1.5rem;
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        a.back:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}{{ room.name }} - Room Details{% endblock %}
+{% block content %}
 
-<div class="container">
-    <h1>{{ room.name }}</h1>
+<main class="flex-1 p-8" style="background: var(--bg-page);">
+    <div class="max-w-xl mx-auto">
+        <!-- Room Header -->
+        <div class="t-card p-8 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: var(--accent-light);">
+                <span class="material-symbols-outlined text-4xl" style="color: var(--accent);">groups</span>
+            </div>
+            
+            <h1 class="text-2xl font-bold t-text-primary mb-2">{{ room.name }}</h1>
+            
+            <p class="t-text-muted text-sm mb-4">{{ room.get_room_type_display }} Room</p>
+            
+            {% if room.description %}
+            <p class="t-text-secondary mb-6">{{ room.description }}</p>
+            {% else %}
+            <p class="t-text-muted italic mb-6">No description provided</p>
+            {% endif %}
 
-    <p class="meta">
-        Room ID: {{ room.id }}
-        
-    </p>
+            <!-- Room Info -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="p-4 rounded-xl" style="background: var(--bg-item); border: 1px solid var(--border-card);">
+                    <p class="t-text-muted text-xs uppercase mb-1">Members</p>
+                    <p class="t-text-primary font-bold text-lg">{{ room.memberships.count }}</p>
+                </div>
+                <div class="p-4 rounded-xl" style="background: var(--bg-item); border: 1px solid var(--border-card);">
+                    <p class="t-text-muted text-xs uppercase mb-1">Visibility</p>
+                    <p class="t-text-primary font-bold text-lg">{% if room.is_private %}Private{% else %}Public{% endif %}</p>
+                </div>
+            </div>
 
-    <p>Invite Code: {{ room.invite_code }}</p>
+            <!-- Join Button -->
+            <form method="POST" action="{% url 'rooms:join_by_code' room.invite_code %}" class="mb-4">
+                {% csrf_token %}
+                <button type="submit" class="t-btn-primary w-full py-3 text-base font-medium flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">login</span>
+                    Join Room
+                </button>
+            </form>
 
-    {% if room.description %}
-        <p>{{ room.description }}</p>
-    {% else %}
-        <p><em>No description provided for this room.</em></p>
-    {% endif %}
+            <!-- Back Link -->
+            <a href="{% url 'rooms:room_list' %}" class="inline-flex items-center gap-1 t-text-accent hover:underline text-sm font-medium">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Rooms
+            </a>
+        </div>
+    </div>
+</main>
 
-    <a href="{% url 'rooms:room_list' %}" class="back">← Back to Rooms</a>
-</div>
-
-</body>
-</html>
+{% endblock %}

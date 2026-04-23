@@ -13,45 +13,49 @@
 
     <style>
         :root {
-            --accent: #7c3aed;
-            --accent-hover: #6d28d9;
-            --accent-light: #ede9fe;
+            --accent: #585aa1;
+            --accent-hover: #4d508e;
+            --accent-light: #e8e7dc;
         }
 
         body {
             font-family: "Varela Round", sans-serif;
-            background: #0f0a1f;
+            margin: 0;
             overflow: hidden;
         }
 
-        /* Animated gradient background */
         .auth-bg {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #4c1d95, #7c3aed, #a78bfa);
-            background-size: 300% 300%;
-            animation: gradientMove 12s ease infinite;
+            background: linear-gradient(135deg, #e8e7dc 0%, #d4d3f5 50%, #c9c8e8 100%);
+            position: relative;
             padding: 20px;
         }
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .auth-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(88, 90, 161, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(114, 117, 184, 0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
-        /* Floating logo animation */
         .auth-logo {
-            color: white;
-            font-size: 26px;
+            color: #585aa1;
+            font-size: 28px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            animation: float 4s ease-in-out infinite;
+            gap: 10px;
+            margin-bottom: 24px;
+            animation: float 5s ease-in-out infinite;
         }
 
         @keyframes float {
@@ -59,28 +63,28 @@
             50% { transform: translateY(-6px); }
         }
 
-        /* White / frosted login card */
         .auth-card {
             width: 100%;
             max-width: 420px;
             padding: 40px;
-            border-radius: 20px;
-
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-            animation: fadeIn 0.8s ease forwards;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(88, 90, 161, 0.15);
+            box-shadow: 
+                0 20px 40px rgba(88, 90, 161, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.8);
+            animation: fadeIn 0.6s ease forwards;
             opacity: 0;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes fadeIn {
             to { opacity: 1; transform: translateY(0); }
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
         }
 
-        /* Headings inside card */
         .auth-card h1 {
             color: #1f2937;
         }
@@ -89,18 +93,15 @@
             color: #6b7280;
         }
 
-        /* Inputs: white with dark text */
         .auth-input {
             width: 100%;
-            padding: 12px 14px;
-            border-radius: 10px;
-
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(0, 0, 0, 0.15);
-
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #f8f8fc;
+            border: 1px solid #e5e5ef;
             color: #1f2937;
             font-size: 14px;
-            transition: 0.25s;
+            transition: all 0.3s ease;
         }
 
         .auth-input::placeholder {
@@ -110,65 +111,65 @@
         .auth-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+            box-shadow: 0 0 0 3px rgba(88, 90, 161, 0.15);
+            background: #fff;
         }
 
-        /* Labels */
         .auth-label {
-            color: #374151;
+            color: #4b5563;
             font-size: 13px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             font-weight: 600;
+            display: block;
         }
 
-        /* Button */
         .auth-btn {
             width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            background: var(--accent);
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, #7275b8 100%);
             color: white;
             font-weight: 600;
             font-size: 15px;
             border: none;
             cursor: pointer;
-            transition: 0.25s;
+            transition: all 0.3s ease;
+            margin-top: 8px;
         }
 
         .auth-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(88, 90, 161, 0.3);
         }
 
-        /* Error box */
         .auth-error {
-            background: rgba(255, 0, 0, 0.15);
-            border: 1px solid rgba(255, 100, 100, 0.4);
-            color: #991b1b;
-            padding: 10px 14px;
-            border-radius: 10px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 14px;
+            border-radius: 12px;
             font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        /* Footer */
         .auth-footer {
-            margin-top: 20px;
+            margin-top: 24px;
             text-align: center;
-            color: #4b5563;
+            color: #6b7280;
             font-size: 13px;
         }
 
         .auth-footer a {
             color: var(--accent);
             font-weight: 600;
+            transition: color 0.2s;
         }
 
         .auth-footer a:hover {
-            text-decoration: underline;
+            color: var(--accent-hover);
+            text-decoration: none;
         }
     </style>
 </head>

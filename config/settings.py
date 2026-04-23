@@ -2,19 +2,19 @@
 Django settings for config project.
 """
 
+from pathlib import Path
 from dotenv import load_dotenv
 import os
 import dj_database_url
-from pathlib import Path
 import cloudinary
 
-
-load_dotenv(override=False)
-
-# ---------------------------------------------------------
-# BASE DIR
-# ---------------------------------------------------------
+# Load .env from project root
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env', override=False)
+
+# ---------------------------------------------------------
+# BASE DIR (defined above for .env loading)
+# ---------------------------------------------------------
 
 # ---------------------------------------------------------
 # SECURITY
@@ -30,10 +30,17 @@ CSRF_TRUSTED_ORIGINS = [
     if host.strip()
 ]
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SAMESITE = 'None'
+# Cookie security settings - strict in production, relaxed in development
+if DEBUG:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+else:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
 
 # ---------------------------------------------------------
 # APPS
@@ -167,6 +174,7 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    'RESOURCE_TYPE': 'auto',  # Allow images and raw files
 }
 
 cloudinary.config(
@@ -180,8 +188,8 @@ cloudinary.config(
 # Use Cloudinary if configured, otherwise use local storage
 if os.getenv('CLOUDINARY_CLOUD_NAME'):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = f'https://res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_NAME")}/image/upload/'
-
+    # cloudinary_storage handles URL generation automatically via .url property
+    MEDIA_URL = '/media/'  # Fallback, not actually used with Cloudinary
 else:
     # Local file storage for development
     MEDIA_URL = '/media/'

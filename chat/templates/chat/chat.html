@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load cloudinary_tags %}
 {% block title %}Chat - End2Friend{% endblock %}
 {% block content %}
 
@@ -12,7 +13,7 @@
             <div class="relative">
                 {% if other_user and other_user.userprofile.profile_image %}
                 <img class="rounded-full w-12 h-12 object-cover flex-shrink-0"
-                    src="{{ other_user.userprofile.profile_image.url }}" alt="Avatar">
+                    src="{{ other_user.userprofile.profile_image|cloudinary_url }}" alt="Avatar">
                 {% else %}
                 <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
                     style="background: linear-gradient(135deg, #9B76B4 0%, #E8B4D4 100%);">
@@ -98,7 +99,7 @@
             <div class="flex gap-3">
                 {% if message.user.userprofile.profile_image %}
                 <img class="rounded-full w-11 h-11 object-cover flex-shrink-0 mt-2"
-                    src="{{ message.user.userprofile.profile_image.url }}" alt="Avatar">
+                    src="{{ message.user.userprofile.profile_image|cloudinary_url }}" alt="Avatar">
                 {% else %}
                 <div class="flex items-center justify-center rounded-full w-11 h-11 flex-shrink-0 t-accent-icon-wrap">
                     <span class="material-symbols-outlined" style="color: var(--accent);">person</span>
@@ -171,6 +172,27 @@
         </div>
     </main>
     <!-- Right sidebar removed - keeping direct messages UI simple -->
+</div>
+
+<!-- Delete Message Modal -->
+<div id="deleteMessageModal" class="fixed inset-0 hidden items-center justify-center z-50" style="background: rgba(0,0,0,0.5);">
+    <div class="shadow-lg p-6 max-w-md mx-4 rounded-2xl" style="background: var(--bg-modal); border: 1px solid var(--border-modal);">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(239, 68, 68, 0.15);">
+                <span class="material-symbols-outlined" style="color: #ef4444;">delete</span>
+            </div>
+            <h2 class="text-lg font-bold t-text-primary">Delete Message?</h2>
+        </div>
+        <p class="t-text-secondary mb-6">Are you sure you want to delete this message? This cannot be undone.</p>
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-lg transition" style="background: var(--bg-item); color: var(--text-secondary); border: 1px solid var(--border-card);">
+                Cancel
+            </button>
+            <button onclick="confirmDeleteMessage()" class="px-4 py-2 rounded-lg text-white transition hover:opacity-90" style="background: #ef4444;">
+                Delete
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -411,8 +433,23 @@
         }
     }
 
-    async function deleteMessage(id) {
-        if (!confirm('Delete this message?')) return;
+    let messageToDelete = null;
+
+    function deleteMessage(id) {
+        messageToDelete = id;
+        document.getElementById('deleteMessageModal').classList.remove('hidden');
+        document.getElementById('deleteMessageModal').classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteMessageModal').classList.add('hidden');
+        document.getElementById('deleteMessageModal').classList.remove('flex');
+        messageToDelete = null;
+    }
+
+    async function confirmDeleteMessage() {
+        if (!messageToDelete) return;
+        const id = messageToDelete;
         const res = await fetch(`/chat/messages/${id}/delete/`, {
             method: 'POST',
             headers: { 'X-CSRFToken': csrfToken },
@@ -427,6 +464,7 @@
             }
             socket.send(JSON.stringify({ type: 'delete', message_id: id }));
         }
+        closeDeleteModal();
     }
 
     // File upload handling

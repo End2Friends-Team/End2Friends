@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load cloudinary_tags %}
 {% block title %}#{{ channel.name }} - {{ room.name }}{% endblock %}
 {% block content %}
 <div class="flex w-full flex-1 h-screen max-h-screen overflow-hidden">
@@ -267,7 +268,7 @@
                 <div class="flex items-center gap-2 p-2 rounded-lg transition member-item" data-user-id="{{ member.user.id }}" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'">
                     <div class="relative">
                         {% if member.user.userprofile.profile_image %}
-                        <img src="{{ member.user.userprofile.profile_image.url }}" class="w-8 h-8 rounded-full object-cover">
+                        <img src="{{ member.user.userprofile.profile_image|cloudinary_url }}" class="w-8 h-8 rounded-full object-cover">
                         {% else %}
                         <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--accent-light);">
                             <span class="material-symbols-outlined text-sm" style="color: var(--accent);">person</span>
@@ -338,6 +339,27 @@
                     Delete Channel
                 </button>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Message Modal -->
+<div id="deleteMessageModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-600">delete</span>
+            </div>
+            <h2 class="text-lg font-bold t-text-primary">Delete Message?</h2>
+        </div>
+        <p class="t-text-secondary mb-6">Are you sure you want to delete this message? This cannot be undone.</p>
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeDeleteMessageModal()" class="t-btn-secondary">
+                Cancel
+            </button>
+            <button onclick="confirmDeleteMessage()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                Delete
+            </button>
         </div>
     </div>
 </div>
@@ -945,8 +967,23 @@ const currentUser = "{{ request.user.username }}";
         }
     }
 
-    async function deleteChannelMsg(id) {
-        if (!confirm('Delete this message?')) return;
+    let messageToDelete = null;
+
+    function deleteChannelMsg(id) {
+        messageToDelete = id;
+        document.getElementById('deleteMessageModal').classList.remove('hidden');
+        document.getElementById('deleteMessageModal').classList.add('flex');
+    }
+
+    function closeDeleteMessageModal() {
+        document.getElementById('deleteMessageModal').classList.add('hidden');
+        document.getElementById('deleteMessageModal').classList.remove('flex');
+        messageToDelete = null;
+    }
+
+    async function confirmDeleteMessage() {
+        if (!messageToDelete) return;
+        const id = messageToDelete;
         const res = await fetch(`/rooms/${roomId}/channels/${channelId}/messages/${id}/delete/`, {
             method: 'POST',
             headers: { 'X-CSRFToken': csrfToken },
@@ -960,6 +997,7 @@ const currentUser = "{{ request.user.username }}";
                 row.innerHTML = `<p class="text-xs italic px-3 py-2 rounded-full t-text-muted" style="background: var(--bg-item); border: 1px solid var(--border-card);">Message deleted</p>`;
             }
         }
+        closeDeleteMessageModal();
     }
 
     // Left Sidebar Toggle

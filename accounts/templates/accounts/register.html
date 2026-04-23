@@ -1,162 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>End2Friend - Register</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <!-- Google font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Varela+Round&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
-    <!-- Icons -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        :root {
+            --accent: #585aa1;
+            --accent-hover: #4d508e;
+            --accent-light: #e8e7dc;
+        }
+
+        body {
+            font-family: "Varela Round", sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .auth-bg {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e8e7dc 0%, #d4d3f5 50%, #c9c8e8 100%);
+            position: relative;
+            padding: 20px;
+        }
+
+        .auth-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(88, 90, 161, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(114, 117, 184, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .auth-logo {
+            color: #585aa1;
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 40px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(88, 90, 161, 0.15);
+            box-shadow: 
+                0 20px 40px rgba(88, 90, 161, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.8);
+            animation: fadeIn 0.6s ease forwards;
+            opacity: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(15px); }
+        }
+
+        .auth-card h1 { color: #1f2937; }
+        .auth-card p { color: #6b7280; }
+
+        .auth-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #f8f8fc;
+            border: 1px solid #e5e5ef;
+            color: #1f2937;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-input::placeholder { color: #9ca3af; }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 90, 161, 0.15);
+            background: #fff;
+        }
+
+        .auth-label {
+            color: #4b5563;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, #7275b8 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(88, 90, 161, 0.3);
+        }
+
+        .auth-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .auth-footer a {
+            color: var(--accent);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: var(--accent-hover);
+            text-decoration: none;
+        }
+    </style>
 </head>
 
-<body class="varela-round-regular">
-    <section class="base-background min-h-screen flex items-center justify-center">
-        <div class="flex flex-col items-center gap-4">
-            <div class="flex login-title">
-                <span class="material-symbols-outlined">
-                    drone_2
-                </span>
-                <h1 class="pl-2">End2Friend</h1>
+<body>
+    <div class="auth-bg">
+        <div class="flex flex-col items-center">
+
+            <div class="auth-logo">
+                <span class="material-symbols-outlined">drone_2</span>
+                End2Friend
             </div>
 
-            <!-- Form -->
-            <div class="flex flex-col rounded-2xl shadow-lg w-[700px] p-8 bg-white">
-                <form class="flex flex-col gap-2" method="post" action="{% url 'register' %}">
+            <div class="auth-card">
+                <h1 class="text-center text-xl font-bold mb-1">Create Account</h1>
+                <p class="text-center text-sm mb-6">Sign up to get started with End2Friend.</p>
+
+                <form class="flex flex-col gap-4" method="post" action="{% url 'register' %}">
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
-                        {{form.non_field_errors}}
+                    <div class="auth-error">
+                        <span class="material-symbols-outlined" style="font-size:18px;">error</span>
+                        {{ form.non_field_errors }}
                     </div>
                     {% endif %}
 
-                    <h1 class="font-bold text-gray-900 text-center text-xl">Create Account</h1>
-                    <h3 class="font-small text-gray-500 text-center">Sign up to get started.</h3>
-
-                    <label for="username">Username</label>
-                    <input
-                        class="border-1 rounded-md border-gray-300 p-2 {% if form.username.errors %}is-invalid{% endif %}"
-                        type="text" name="username" id="username" placeholder="Choose a username"
-                        value="{{form.username.value|default_if_none:''}}" required>
-
-                    <!-- Display username error -->
-                    {% if form.username.errors %}
-                    <div class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md">
-                        <div class="flex items-center">
-                            <span class="material-symbols-outlined">
-                                error
-                            </span>
-                            <div class="pl-2">
-                                {{form.username.errors}}
-                            </div>
-                        </div>
+                    <div>
+                        <label class="auth-label">Username</label>
+                        <input class="auth-input {% if form.username.errors %}border-red-400{% endif %}"
+                               type="text" name="username"
+                               value="{{ form.username.value|default_if_none:'' }}"
+                               placeholder="Choose a username" required>
+                        {% if form.username.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    {% endif %}
 
-                    <label for="email">Email</label>
-                    <input
-                        class="border-1 rounded-md border-gray-300 p-2 {% if form.email.errors %}is-invalid{% endif %}"
-                        value="{{form.email.value|default_if_none:''}}" type="email" name="email" id="email"
-                        placeholder="Enter your email" required>
-
-                    <!-- Display email error -->
-                    {% if form.email.errors %}
-                    <div class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md">
-                        <div class="flex items-center">
-                            <span class="material-symbols-outlined">
-                                error
-                            </span>
-                            <div class="pl-2">
-                                {{form.email.errors}}
-                            </div>
-                        </div>
+                    <div>
+                        <label class="auth-label">Email</label>
+                        <input class="auth-input {% if form.email.errors %}border-red-400{% endif %}"
+                               type="email" name="email"
+                               value="{{ form.email.value|default_if_none:'' }}"
+                               placeholder="Enter your email" required>
+                        {% if form.email.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    {% endif %}
 
-                    <label for="password1">Password</label>
-                    <input
-                        class="border-1 rounded-md border-gray-300 p-2 {% if form.email.errors %}is-invalid{% endif %}"
-                        value="{{form.password1.value|default_if_none:''}}" type="password" name="password1"
-                        id="password1" placeholder="Create a password" required>
-
-                    <!-- Display password1 error -->
-                    {% if form.password1.errors %}
-                    <div class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md">
-                        <div class="flex items-center">
-                            <span class="material-symbols-outlined">
-                                error
-                            </span>
-                            <div class="pl-2">
-                                {{form.password1.errors}}
-                            </div>
-                        </div>
+                    <div>
+                        <label class="auth-label">Password</label>
+                        <input class="auth-input {% if form.password1.errors %}border-red-400{% endif %}"
+                               type="password" name="password1"
+                               placeholder="Create a password" required>
+                        {% if form.password1.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    {% endif %}
 
-                    <label for="password2">Confirm Password</label>
-                    <input
-                        class="border-1 rounded-md border-gray-300 p-2 {% if form.password2.errors %}is-invalid{% endif %}"
-                        value="{{form.password2.value|default_if_none:''}}" type="password" name="password2"
-                        id="password2" placeholder="Confirm your password" required>
-
-                    <!-- Display password2 error -->
-                    {% if form.password2.errors %}
-                    <div class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md">
-                        <div class="flex items-center">
-                            <span class="material-symbols-outlined">
-                                error
-                            </span>
-                            <div class="pl-2">
-                                {{form.password2.errors}}
-                            </div>
-                        </div>
+                    <div>
+                        <label class="auth-label">Confirm Password</label>
+                        <input class="auth-input {% if form.password2.errors %}border-red-400{% endif %}"
+                               type="password" name="password2"
+                               placeholder="Confirm your password" required>
+                        {% if form.password2.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    {% endif %}
 
-                    <button class="login-btn rounded-lg bg-blue-300 hover:bg-blue-400 text-center text-white p-3 mt-3"
-                        type="submit">Sign up</button>
+                    <button class="auth-btn" type="submit">Sign up</button>
                 </form>
-                <p class="mt-5 text-xs border-t py-4 text-center">Already have an account?
-                    <a href="{% url 'login' %}" class="text-blue-500">Sign in</a>
-                </p>
+
+                <div class="auth-footer">
+                    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+                </div>
             </div>
+
         </div>
-    </section>
+    </div>
 </body>
-
-<style>
-    .varela-round-regular {
-        font-family: "Varela Round", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-    }
-
-    .login-title {
-        color: white;
-    }
-
-    .login-btn {
-        transition: transform 0.5s;
-    }
-
-    .login-btn:hover {
-        transform: translateY(-3px);
-    }
-
-    .base-background {
-        background: #cad7db;
-        background: radial-gradient(circle, rgba(202, 215, 219, 1) 0%, rgba(185, 200, 213, 1) 12%, rgba(174, 191, 210, 1) 20%, rgba(160, 179, 205, 1) 22%, rgba(132, 154, 196, 1) 36%, rgba(164, 180, 211, 1) 63%, rgba(203, 212, 230, 1) 79%, rgba(250, 251, 253, 1) 98%);
-    }
-</style>
-
 </html>

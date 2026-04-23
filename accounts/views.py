@@ -108,12 +108,13 @@ def dashboard_view(request):
     tasks = Task.objects.filter(user=request.user, completed=False)[:5]
     channels = request.user.channels.all()[:5]
     pomodoro, _ = PomodoroSession.objects.get_or_create(user=request.user)
-    reminders = Reminder.objects.filter(
-        user=request.user,
-        remind_at__gte=timezone.now()
-    )[:5]
+    reminders = Reminder.objects.filter(user=request.user).order_by('remind_at')[:5]
     activities = Activity.objects.filter(user=request.user)[:4]
     study_rooms = StudyRoom.objects.filter(memberships__user=request.user)[:4]
+    
+    # Public rooms user hasn't joined yet
+    user_room_ids = study_rooms.values_list('id', flat=True)
+    public_rooms = StudyRoom.objects.filter(is_private=False).exclude(id__in=user_room_ids)[:4]
 
     recent_conversations = Conversation.objects.filter(
         participants=request.user,
@@ -132,6 +133,7 @@ def dashboard_view(request):
             "reminders": reminders,
             "activities": activities,
             "study_rooms": study_rooms,
+            "public_rooms": public_rooms,
             "recent_conversations": recent_conversations,
         },
     )
@@ -237,6 +239,9 @@ def add_reminder(request):
         if title and remind_at:
             try:
                 remind_datetime = datetime.fromisoformat(remind_at)
+                # Make timezone-aware if naive
+                if timezone.is_naive(remind_datetime):
+                    remind_datetime = timezone.make_aware(remind_datetime)
                 Reminder.objects.create(
                     user=request.user,
                     title=title,
