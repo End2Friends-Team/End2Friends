@@ -9,13 +9,11 @@ import dj_database_url
 import cloudinary
 import logging
 
-# Load .env from project root
+# ---------------------------------------------------------
+# BASE DIR & ENV
+# ---------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env', override=False)
-
-# ---------------------------------------------------------
-# BASE DIR (defined above for .env loading)
-# ---------------------------------------------------------
 
 # ---------------------------------------------------------
 # SECURITY
@@ -31,7 +29,7 @@ CSRF_TRUSTED_ORIGINS = [
     if host.strip()
 ]
 
-# Cookie security settings - strict in production, relaxed in development
+# Cookie security settings
 if DEBUG:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
@@ -65,11 +63,10 @@ INSTALLED_APPS = [
 ]
 
 # ---------------------------------------------------------
-# MIDDLEWARE
+# MIDDLEWARE (NO WHITENOISE)
 # ---------------------------------------------------------
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',  
-    'whitenoise.middleware.WhiteNoiseMiddleware',      
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,7 +76,7 @@ MIDDLEWARE = [
 ]
 
 # ---------------------------------------------------------
-# TEMPLATES
+# URLS / TEMPLATES
 # ---------------------------------------------------------
 ROOT_URLCONF = 'config.urls'
 
@@ -156,26 +153,20 @@ USE_I18N = True
 USE_TZ = True
 
 # ---------------------------------------------------------
-# STATIC FILES
+# STATIC FILES (NO WHITENOISE)
 # ---------------------------------------------------------
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
-
 # ---------------------------------------------------------
-# Cloudinary Config
+# MEDIA / CLOUDINARY
 # ---------------------------------------------------------
-
-
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-    'RESOURCE_TYPE': 'auto',  # Allow images and raw files
+    'RESOURCE_TYPE': 'auto',
 }
 
 cloudinary.config(
@@ -185,18 +176,16 @@ cloudinary.config(
     secure=True,
 )
 
-
-# Use Cloudinary if configured, otherwise use local storage
 if os.getenv('CLOUDINARY_CLOUD_NAME'):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'
 else:
-    # Local file storage for development
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
-# DEBUG--------------------------
-
+# ---------------------------------------------------------
+# LOGGING
+# ---------------------------------------------------------
 logger = logging.getLogger(__name__)
 logger.warning(f"CLOUDINARY_CLOUD_NAME = {os.getenv('CLOUDINARY_CLOUD_NAME')}")
 logger.warning(f"DEFAULT_FILE_STORAGE = {DEFAULT_FILE_STORAGE}")

@@ -4,6 +4,8 @@ import shortuuid
 import os
 import uuid
 from .validators import validate_uploaded_file
+from cloudinary_storage.storage import MediaCloudinaryStorage
+
 
 User = get_user_model()
 
@@ -57,11 +59,13 @@ class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     file = models.FileField(
+        storage=MediaCloudinaryStorage(),
         upload_to=upload_to_uuid,
         blank=True,
         null=True,
         validators=[validate_uploaded_file]
     )
+
 
     original_filename = models.CharField(max_length=255, blank=True)
     content = models.TextField(blank=True)
