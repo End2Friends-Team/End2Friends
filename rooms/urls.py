@@ -27,4 +27,24 @@ urlpatterns = [
     path('<int:room_id>/channels/<int:channel_id>/', views.channel_chat, name='channel_chat'),
     path('<int:room_id>/channels/<int:channel_id>/edit/', views.edit_channel, name='edit_channel'),
     path('<int:room_id>/channels/<int:channel_id>/delete/', views.delete_channel, name='delete_channel'),
+    path('<int:room_id>/channels/<int:channel_id>/upload/', views.channel_upload_file, name='channel_upload_file'),
+    path('<int:room_id>/channels/<int:channel_id>/messages/<int:message_id>/edit/', views.edit_channel_message, name='edit_channel_message'),
+    path('<int:room_id>/channels/<int:channel_id>/messages/<int:message_id>/delete/', views.delete_channel_message, name='delete_channel_message'),
+    
+    # Pinned messages
+    path('<int:room_id>/pinned-messages/', views.get_pinned_messages, name='get_pinned_messages'),
+    path('<int:room_id>/channels/<int:channel_id>/messages/<int:message_id>/pin/', views.pin_message, name='pin_message'),
+    path('<int:room_id>/channels/<int:channel_id>/messages/<int:message_id>/unpin/', views.unpin_message, name='unpin_message'),
+    
+    # Mentions
+    path('mentions/', views.get_my_mentions, name='get_my_mentions'),
+    path('mentions/<int:mention_id>/read/', views.mark_mention_read, name='mark_mention_read'),
+    path('mentions/mark-all-read/', views.mark_all_mentions_read, name='mark_all_mentions_read'),
+    
+    # Read receipts
+    path('<int:room_id>/channels/<int:channel_id>/mark-seen/', views.mark_messages_seen, name='mark_messages_seen'),
+    path('<int:room_id>/channels/<int:channel_id>/read-status/', views.get_read_status, name='get_read_status'),
+    
+    # Presence
+    path('<int:room_id>/presence/', views.get_room_presence, name='get_room_presence'),
 ]

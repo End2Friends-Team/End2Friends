@@ -44,9 +44,27 @@
                         </button>
                     </div>
                     <p class="text-xs t-text-muted text-right mb-1">{{ message.timestamp|timesince }} ago</p>
+                    {% if message.file %}
+                        {% if message.is_image %}
+                        <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
+                            <img src="{{ message.file.url }}" alt="{{ message.original_filename }}" 
+                                class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
+                        </a>
+                        {% else %}
+                        <a href="{{ message.file.url }}" target="_blank" 
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-white text-sm"
+                            style="background: var(--accent);">
+                            <span class="material-symbols-outlined">description</span>
+                            <span class="truncate">{{ message.original_filename }}</span>
+                            <span class="material-symbols-outlined text-sm">download</span>
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    {% if message.content %}
                     <div id="msg-edit-{{ message.id }}" class="msg-sent px-4 py-3 text-sm shadow-sm">
                         {{ message.content }}
                     </div>
+                    {% endif %}
                     <div id="edit-{{ message.id }}" class="hidden">
                         <textarea id="edit-input-{{ message.id }}"
                             class="w-full rounded-2xl px-4 py-3 text-sm resize-none shadow-sm"
@@ -84,7 +102,25 @@
                         <span class="font-medium t-text-primary">{{ message.user.username }}</span>
                         · {{ message.timestamp|timesince }} ago
                     </p>
+                    {% if message.file %}
+                        {% if message.is_image %}
+                        <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
+                            <img src="{{ message.file.url }}" alt="{{ message.original_filename }}" 
+                                class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
+                        </a>
+                        {% else %}
+                        <a href="{{ message.file.url }}" target="_blank" 
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-sm"
+                            style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
+                            <span class="material-symbols-outlined" style="color: var(--accent);">description</span>
+                            <span class="truncate">{{ message.original_filename }}</span>
+                            <span class="material-symbols-outlined text-sm" style="color: var(--accent);">download</span>
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    {% if message.content %}
                     <div class="msg-received px-4 py-3 text-sm shadow-sm">{{ message.content }}</div>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -100,16 +136,28 @@
             {% endfor %}
         </div>
 
+        <!-- File Preview Area -->
+        <div id="filePreview" class="hidden p-3 border-t" style="background: var(--bg-card); border-color: var(--border-card);">
+            <div class="flex items-center gap-2 flex-wrap" id="filePreviewList"></div>
+        </div>
+
         <!-- Input Area -->
         <div class="p-4" style="background: var(--bg-card); border-top: 1px solid var(--border-card);">
             <div class="flex gap-3 items-center">
+                <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
+                <button id="attachBtn" onclick="document.getElementById('fileInput').click()" 
+                    class="w-10 h-10 rounded-full flex items-center justify-center transition hover:opacity-80"
+                    style="background: var(--accent-light); color: var(--accent);"
+                    title="Upload file or image">
+                    <span class="material-symbols-outlined">attach_file</span>
+                </button>
                 <input id="messageInput" type="text" placeholder="Type a message..."
                     class="flex-1 rounded-full px-5 py-3 text-sm"
                     style="background: var(--bg-input); color: var(--text-primary);
                            border: none; outline: none;">
                 <button id="sendBtn" onclick="sendMessage()"
                     class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition hover:opacity-90"
-                    style="background: linear-gradient(135deg, #9B76B4 0%, #E8B4D4 100%);">
+                    style="background: var(--accent);">
                     <span class="material-symbols-outlined">send</span>
                 </button>
             </div>
@@ -148,21 +196,40 @@
             return;
         }
 
+        if (data.type === 'file_uploaded') {
+            // Only show if from another user (we already added our own)
+            if (data.username !== currentUser) {
+                addFileMessageToUI(data, false);
+            }
+            return;
+        }
+
         const isSent = data.username === currentUser;
         const div = document.createElement('div');
 
         if (isSent) {
-            div.className = 'flex justify-end';
+            div.className = 'flex justify-end message-row group';
+            if (data.message_id) {
+                div.setAttribute('data-msg-id', data.message_id);
+            }
             div.innerHTML = `
-                <div class="max-w-md">
+                <div class="relative max-w-md">
+                    <div class="action-bar">
+                        <button onclick="startEdit('${data.message_id || ''}')" title="Edit message" class="action-btn">
+                            <span class="material-symbols-outlined text-[18px]" style="color: var(--accent);">edit</span>
+                        </button>
+                        <button onclick="deleteMessage('${data.message_id || ''}')" title="Delete message" class="action-btn">
+                            <span class="material-symbols-outlined text-[18px] text-red-400">delete</span>
+                        </button>
+                    </div>
                     <p class="text-xs text-right mb-1" style="color:var(--text-muted)">just now</p>
-                    <div class="msg-sent px-4 py-3 text-sm shadow-sm">${data.message}</div>
+                    <div class="msg-sent px-4 py-3 text-sm shadow-sm" id="msg-edit-${data.message_id || ''}">${data.message}</div>
                 </div>`;
         } else {
             div.className = 'flex gap-3';
             div.innerHTML = `
                 <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                     style="background: linear-gradient(135deg, #7C3AED 0%, #C4B5FD 100%);">
+                     style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);">
                     ${data.username[0].toUpperCase()}
                 </div>
                 <div class="max-w-md">
@@ -186,9 +253,126 @@
     function sendMessage() {
         const input = document.getElementById('messageInput');
         const msg = input.value.trim();
+        
+        // If files are selected, upload them
+        if (selectedFiles.length > 0) {
+            uploadFiles(msg);
+            input.value = '';
+            return;
+        }
+        
         if (!msg) return;
         socket.send(JSON.stringify({ message: msg }));
         input.value = '';
+    }
+
+    async function uploadFiles(messageText) {
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+        
+        for (const file of selectedFiles) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('message', messageText);
+            
+            try {
+                const res = await fetch(`/chat/${roomName}/upload/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.ok) {
+                    // Broadcast to other users
+                    socket.send(JSON.stringify({
+                        type: 'file_upload',
+                        message_id: data.message_id,
+                        file_url: data.file_url,
+                        filename: data.filename,
+                        is_image: data.is_image,
+                        content: data.content,
+                        username: data.username
+                    }));
+                    
+                    // Add message to UI immediately
+                    addFileMessageToUI(data, true);
+                } else {
+                    alert('Upload failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert('Upload failed: ' + err.message);
+            }
+            
+            // Clear message text after first file (only add caption once)
+            messageText = '';
+        }
+        
+        // Reset
+        selectedFiles = [];
+        updateFilePreview();
+        fileInput.value = '';
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span>';
+    }
+
+    function addFileMessageToUI(data, isSent) {
+        const emptyState = chatLog.querySelector('.flex.flex-col.items-center');
+        if (emptyState) emptyState.remove();
+        
+        const div = document.createElement('div');
+        
+        let fileHtml = '';
+        if (data.is_image) {
+            fileHtml = `<a href="${data.file_url}" target="_blank" class="block mb-2">
+                <img src="${data.file_url}" alt="${data.filename}" class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
+            </a>`;
+        } else {
+            const bgStyle = isSent ? 'background: var(--accent);' : 'background: var(--bg-card); border: 1px solid var(--border-card);';
+            const textStyle = isSent ? 'color: white;' : 'color: var(--text-primary);';
+            fileHtml = `<a href="${data.file_url}" target="_blank" class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-sm" style="${bgStyle} ${textStyle}">
+                <span class="material-symbols-outlined">description</span>
+                <span class="truncate">${data.filename}</span>
+                <span class="material-symbols-outlined text-sm">download</span>
+            </a>`;
+        }
+        
+        const contentHtml = data.content ? `<div class="${isSent ? 'msg-sent' : 'msg-received'} px-4 py-3 text-sm shadow-sm">${data.content}</div>` : '';
+        
+        if (isSent) {
+            div.className = 'flex justify-end message-row group';
+            div.setAttribute('data-msg-id', data.message_id);
+            div.innerHTML = `
+                <div class="relative max-w-md">
+                    <div class="action-bar">
+                        <button onclick="deleteMessage('${data.message_id}')" title="Delete message" class="action-btn">
+                            <span class="material-symbols-outlined text-[18px] text-red-400">delete</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-right mb-1" style="color:var(--text-muted)">just now</p>
+                    ${fileHtml}
+                    ${contentHtml}
+                </div>`;
+        } else {
+            div.className = 'flex gap-3';
+            div.innerHTML = `
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                     style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);">
+                    ${data.username[0].toUpperCase()}
+                </div>
+                <div class="max-w-md">
+                    <p class="text-xs mb-1" style="color:var(--text-secondary)">
+                        <span class="font-medium" style="color:var(--text-primary)">${data.username}</span> · just now
+                    </p>
+                    ${fileHtml}
+                    ${contentHtml}
+                </div>`;
+        }
+        
+        chatLog.appendChild(div);
+        chatLog.scrollTop = chatLog.scrollHeight;
     }
 
     function startEdit(id) {
@@ -236,6 +420,43 @@
             }
             socket.send(JSON.stringify({ type: 'delete', message_id: id }));
         }
+    }
+
+    // File upload handling
+    let selectedFiles = [];
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const filePreviewList = document.getElementById('filePreviewList');
+
+    fileInput.addEventListener('change', function(e) {
+        selectedFiles = Array.from(e.target.files);
+        updateFilePreview();
+    });
+
+    function updateFilePreview() {
+        if (selectedFiles.length === 0) {
+            filePreview.classList.add('hidden');
+            return;
+        }
+        filePreview.classList.remove('hidden');
+        filePreviewList.innerHTML = selectedFiles.map((file, index) => {
+            const isImage = file.type.startsWith('image/');
+            const icon = isImage ? 'image' : 'description';
+            return `
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm" style="background: var(--bg-item); border: 1px solid var(--border-card);">
+                    <span class="material-symbols-outlined text-base" style="color: var(--accent);">${icon}</span>
+                    <span class="t-text-primary max-w-[150px] truncate">${file.name}</span>
+                    <button onclick="removeFile(${index})" class="ml-1 hover:opacity-70">
+                        <span class="material-symbols-outlined text-base text-red-400">close</span>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updateFilePreview();
     }
 </script>
 

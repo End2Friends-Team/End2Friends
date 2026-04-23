@@ -24,16 +24,16 @@
 {% block content %}
 <div class="flex w-full flex-1 h-screen max-h-screen overflow-hidden">
     <!-- Left Sidebar (Collapsible) -->
-    <div id="leftSidebar" class="w-52 bg-violet-100/80 flex flex-col border-r border-purple-200 transition-all duration-300 relative">
+    <div id="leftSidebar" class="w-52 flex flex-col transition-all duration-300 relative" style="background: var(--bg-sidebar); border-right: 1px solid var(--border-main);">
         <!-- Collapse Toggle Button -->
         <button id="leftSidebarToggle" onclick="toggleLeftSidebar()" 
-                class="absolute -right-3 top-4 z-10 w-6 h-6 bg-white border border-purple-200 rounded-full shadow-sm flex items-center justify-center hover:bg-purple-50 transition">
-            <span class="material-symbols-outlined text-purple-600 text-sm" id="leftToggleIcon">chevron_left</span>
+                class="absolute -right-3 top-4 z-10 w-6 h-6 rounded-full shadow-sm flex items-center justify-center transition" style="background: var(--bg-card); border: 1px solid var(--border-main);">
+            <span class="material-symbols-outlined text-sm" id="leftToggleIcon" style="color: var(--accent);">chevron_left</span>
         </button>
         
         <!-- Room Header -->
-        <div class="p-3 flex justify-between items-center bg-purple-200/50">
-            <h1 class="font-semibold text-gray-800 truncate sidebar-text">{{ room.name }}</h1>
+        <div class="p-3 flex justify-between items-center" style="background: var(--bg-nav-active);">
+            <h1 class="font-semibold truncate sidebar-text t-text-primary">{{ room.name }}</h1>
             <div class="flex gap-1">
                 {% if membership.role == 'owner' %}
                 <button onclick="openDeleteRoomModal()" class="p-1 rounded hover:bg-red-100 transition" title="Delete room">
@@ -45,11 +45,11 @@
 
         {% if membership.role == 'owner' %}
         <!-- Invite Code -->
-        <div class="px-3 py-2 bg-purple-50 border-b border-purple-200 sidebar-content">
+        <div class="px-3 py-2 sidebar-content" style="background: var(--bg-item); border-bottom: 1px solid var(--border-main);">
             <div class="flex items-center gap-1">
-                <code id="inviteCode" class="text-xs font-mono text-purple-600 flex-1 truncate">{{ room.invite_code }}</code>
-                <button onclick="copyInviteCode()" class="p-1 hover:bg-purple-200 rounded" title="Copy invite code">
-                    <span class="material-symbols-outlined text-purple-500 text-sm">content_copy</span>
+                <code id="inviteCode" class="text-xs font-mono flex-1 truncate" style="color: var(--accent);">{{ room.invite_code }}</code>
+                <button onclick="copyInviteCode()" class="p-1 rounded transition" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'" title="Copy invite code">
+                    <span class="material-symbols-outlined text-sm" style="color: var(--accent);">content_copy</span>
                 </button>
             </div>
         </div>
@@ -57,10 +57,10 @@
 
         <!-- Channels Header -->
         <div class="px-3 py-2 flex justify-between items-center sidebar-content">
-            <span class="text-xs font-semibold text-gray-500 uppercase">Channels</span>
+            <span class="text-xs font-semibold uppercase t-text-muted">Channels</span>
             {% if membership.role == 'owner' %}
-            <button onclick="openChannelModal()" class="hover:bg-purple-200 rounded p-0.5 transition" title="New channel">
-                <span class="material-symbols-outlined text-purple-500 text-sm">add</span>
+            <button onclick="openChannelModal()" class="rounded p-0.5 transition" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'" title="New channel">
+                <span class="material-symbols-outlined text-sm" style="color: var(--accent);">add</span>
             </button>
             {% endif %}
         </div>
@@ -69,30 +69,31 @@
         <div class="flex-1 overflow-y-auto px-2 space-y-0.5 sidebar-content">
             {% for ch in channels %}
             <a href="{% url 'rooms:channel_chat' room.id ch.id %}" 
-               class="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition {% if ch.id == channel.id %}bg-purple-300/60 text-purple-800 font-medium{% else %}text-gray-600 hover:bg-purple-200/50 hover:text-purple-700{% endif %}">
+               class="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition channel-link {% if ch.id == channel.id %}active{% endif %}"
+               style="{% if ch.id == channel.id %}background: var(--bg-nav-active); color: var(--text-nav-active); font-weight: 500;{% else %}color: var(--text-secondary);{% endif %}">
                 <span class="{% if ch.color == 'blue' %}text-blue-400{% elif ch.color == 'green' %}text-green-400{% elif ch.color == 'red' %}text-red-400{% elif ch.color == 'orange' %}text-orange-400{% elif ch.color == 'pink' %}text-pink-400{% elif ch.color == 'yellow' %}text-yellow-500{% elif ch.color == 'gray' %}text-gray-400{% else %}text-purple-400{% endif %}">{% if ch.emoji %}{{ ch.emoji }}{% else %}#{% endif %}</span>
                 <span class="truncate">{{ ch.name }}</span>
             </a>
             {% empty %}
-            <p class="px-2 py-4 text-center text-gray-400 text-xs">No channels yet</p>
+            <p class="px-2 py-4 text-center t-text-muted text-xs">No channels yet</p>
             {% endfor %}
         </div>
     </div>
 
     <!-- Main Chat Area -->
-    <div class="flex-1 flex flex-col bg-white">
+    <div class="flex-1 flex flex-col" style="background: var(--bg-page);">
         <!-- Channel Header -->
-        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+        <div class="p-4 flex justify-between items-center" style="background: var(--bg-card); border-bottom: 1px solid var(--border-card);">
             <div class="flex items-center gap-2">
                 <span class="text-xl {% if channel.color == 'blue' %}text-blue-400{% elif channel.color == 'green' %}text-green-400{% elif channel.color == 'red' %}text-red-400{% elif channel.color == 'orange' %}text-orange-400{% elif channel.color == 'pink' %}text-pink-400{% elif channel.color == 'yellow' %}text-yellow-500{% elif channel.color == 'gray' %}text-gray-400{% else %}text-purple-400{% endif %}">{% if channel.emoji %}{{ channel.emoji }}{% else %}#{% endif %}</span>
-                <h2 class="text-xl font-bold text-gray-800">{{ channel.name }}</h2>
+                <h2 class="text-xl font-bold t-text-primary">{{ channel.name }}</h2>
             </div>
             {% if membership.role == 'owner' %}
             <div class="flex items-center gap-2">
-                <button onclick="openEditChannelModal()" class="text-gray-400 hover:text-purple-600 transition" title="Edit channel">
+                <button onclick="openEditChannelModal()" class="t-text-muted hover:text-purple-600 transition" title="Edit channel">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
-                <button onclick="openDeleteChannelModal()" class="text-gray-400 hover:text-red-600 transition" title="Delete channel">
+                <button onclick="openDeleteChannelModal()" class="t-text-muted hover:text-red-600 transition" title="Delete channel">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
             </div>
@@ -117,28 +118,83 @@
             {% for msg in channel_messages %}
             {% if msg.user == request.user %}
             <!-- Own message - right side -->
-            <div class="flex justify-end">
-                <div class="max-w-xs">
-                    <div class="bg-purple-500 text-white px-3 py-2 rounded-2xl rounded-br-sm">
-                        <p class="text-sm">{{ msg.content }}</p>
+            <div class="flex justify-end message-row group own-message" data-msg-id="{{ msg.id }}" id="message-{{ msg.id }}">
+                <div class="relative max-w-xs">
+                    <div class="action-bar">
+                        <button onclick="togglePin('{{ msg.id }}')" title="{% if msg.pin %}Unpin{% else %}Pin{% endif %}" class="action-btn pin-btn" data-pinned="{% if msg.pin %}true{% else %}false{% endif %}">
+                            <span class="material-symbols-outlined text-[16px]" style="color: {% if msg.pin %}var(--accent){% else %}#888{% endif %};">push_pin</span>
+                        </button>
+                        {% if msg.content and not msg.file %}
+                        <button onclick="startEditChannelMsg('{{ msg.id }}')" title="Edit" class="action-btn">
+                            <span class="material-symbols-outlined text-[16px]" style="color: var(--accent);">edit</span>
+                        </button>
+                        {% endif %}
+                        <button onclick="deleteChannelMsg('{{ msg.id }}')" title="Delete" class="action-btn">
+                            <span class="material-symbols-outlined text-[16px] text-red-400">delete</span>
+                        </button>
                     </div>
-                    <p class="text-xs text-gray-400 text-right mt-0.5">{{ msg.timestamp|date:"H:i" }}</p>
+                    {% if msg.file %}
+                        {% if msg.is_image %}
+                        <div class="mb-1 rounded-xl overflow-hidden" style="max-width: 250px;">
+                            <img src="{{ msg.file.url }}" alt="{{ msg.original_filename }}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('{{ msg.file.url }}', '_blank')">
+                        </div>
+                        {% else %}
+                        <a href="{{ msg.file.url }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-white text-sm" style="background: var(--accent);">
+                            <span class="material-symbols-outlined text-sm">description</span>
+                            <span class="truncate">{{ msg.original_filename }}</span>
+                            <span class="material-symbols-outlined text-sm">download</span>
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    {% if msg.content %}
+                    <div id="channel-msg-{{ msg.id }}" class="px-3 py-2 rounded-2xl rounded-br-sm" style="background: var(--accent); color: white;">
+                        <p class="text-sm message-content">{{ msg.content }}</p>
+                    </div>
+                    <div id="channel-edit-{{ msg.id }}" class="hidden">
+                        <textarea id="channel-edit-input-{{ msg.id }}" class="w-full rounded-xl px-3 py-2 text-sm resize-none" style="background: var(--bg-card); color: var(--text-primary); border: 2px solid var(--accent);" rows="2">{{ msg.content }}</textarea>
+                        <div class="flex gap-2 mt-1 justify-end">
+                            <button onclick="cancelEditChannelMsg('{{ msg.id }}')" class="text-xs t-text-muted px-3 py-1 rounded-full" style="border: 1px solid var(--border-card);">Cancel</button>
+                            <button onclick="submitEditChannelMsg('{{ msg.id }}')" class="text-xs text-white px-3 py-1 rounded-full" style="background: var(--accent);">Save</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <p class="text-xs t-text-muted text-right mt-0.5">{{ msg.timestamp|date:"H:i" }}</p>
                 </div>
             </div>
             {% else %}
             <!-- Other's message - left side -->
-            <div class="flex justify-start">
-                <div class="max-w-xs">
-                    <p class="text-xs text-gray-500 mb-0.5">{{ msg.user.username }}</p>
-                    <div class="bg-gray-100 text-gray-800 px-3 py-2 rounded-2xl rounded-bl-sm">
-                        <p class="text-sm">{{ msg.content }}</p>
+            <div class="flex justify-start message-row group" data-msg-id="{{ msg.id }}" id="message-{{ msg.id }}">
+                <div class="relative max-w-xs">
+                    <div class="action-bar-left">
+                        <button onclick="togglePin('{{ msg.id }}')" title="{% if msg.pin %}Unpin{% else %}Pin{% endif %}" class="action-btn pin-btn" data-pinned="{% if msg.pin %}true{% else %}false{% endif %}">
+                            <span class="material-symbols-outlined text-[16px]" style="color: {% if msg.pin %}var(--accent){% else %}#888{% endif %};">push_pin</span>
+                        </button>
                     </div>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ msg.timestamp|date:"H:i" }}</p>
+                    <p class="text-xs t-text-secondary mb-0.5">{{ msg.user.username }}</p>
+                    {% if msg.file %}
+                        {% if msg.is_image %}
+                        <div class="mb-1 rounded-xl overflow-hidden" style="max-width: 250px;">
+                            <img src="{{ msg.file.url }}" alt="{{ msg.original_filename }}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('{{ msg.file.url }}', '_blank')">
+                        </div>
+                        {% else %}
+                        <a href="{{ msg.file.url }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-sm" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
+                            <span class="material-symbols-outlined text-sm" style="color: var(--accent);">description</span>
+                            <span class="truncate">{{ msg.original_filename }}</span>
+                            <span class="material-symbols-outlined text-sm" style="color: var(--accent);">download</span>
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    {% if msg.content %}
+                    <div class="px-3 py-2 rounded-2xl rounded-bl-sm" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-card);">
+                        <p class="text-sm message-content">{{ msg.content }}</p>
+                    </div>
+                    {% endif %}
+                    <p class="text-xs t-text-muted mt-0.5">{{ msg.timestamp|date:"H:i" }}</p>
                 </div>
             </div>
             {% endif %}
             {% empty %}
-            <div class="text-center text-gray-400 py-4">
+            <div class="text-center t-text-muted py-4">
                 <span class="material-symbols-outlined text-4xl mb-1">chat</span>
                 <p class="text-sm">No messages yet. Say hi!</p>
             </div>
@@ -146,14 +202,27 @@
             </div>
         </div>
 
+        <!-- File Preview Area -->
+        <div id="filePreview" class="hidden p-2" style="background: var(--bg-card); border-top: 1px solid var(--border-card);">
+            <div class="flex items-center gap-2 flex-wrap" id="filePreviewList"></div>
+        </div>
+
         <!-- Message Input -->
-        <div class="p-3 border-t border-gray-200 bg-gray-50">
+        <div class="p-3" style="background: var(--bg-card); border-top: 1px solid var(--border-card);">
             <div class="flex gap-2 items-center">
+                <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
+                <button onclick="document.getElementById('fileInput').click()" 
+                    class="p-2 rounded-full flex items-center justify-center transition hover:opacity-80"
+                    style="background: var(--accent-light); color: var(--accent);"
+                    title="Upload file or image">
+                    <span class="material-symbols-outlined text-lg">attach_file</span>
+                </button>
                 <input type="text" id="messageInput" 
-                    class="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-purple-400"
+                    class="flex-1 px-4 py-2 rounded-full focus:outline-none"
+                    style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input);"
                     placeholder="Type a message...">
                 <button id="sendBtn" 
-                    class="p-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition">
+                    class="p-2 text-white rounded-full transition" style="background: var(--accent);">
                     <span class="material-symbols-outlined text-lg">send</span>
                 </button>
             </div>
@@ -161,63 +230,81 @@
     </div>
 
     <!-- RIGHT SIDEBAR -->
-    <div id="rightSidebar" class="w-64 bg-white border-l border-gray-200 flex flex-col overflow-hidden">
+    <div id="rightSidebar" class="w-64 flex flex-col overflow-hidden" style="background: var(--bg-sidebar); border-left: 1px solid var(--border-main);">
         <!-- Pomodoro Timer Section -->
-        <div class="p-4 border-b border-gray-200">
+        <div class="p-4" style="border-bottom: 1px solid var(--border-main);">
             <div class="flex items-center gap-2 mb-3">
-                <span class="material-symbols-outlined text-purple-600">timer</span>
-                <h3 class="font-semibold text-gray-800">Pomodoro Timer</h3>
+                <span class="material-symbols-outlined" style="color: var(--accent);">timer</span>
+                <h3 class="font-semibold t-text-primary">Pomodoro Timer</h3>
             </div>
             <div id="pomodoroContainer">
-                <!-- Pomodoro timer will be inserted here in Phase 3 -->
                 <div class="text-center py-4">
-                    <div class="text-4xl font-bold text-purple-600 mb-2" id="timerDisplay">25:00</div>
+                    <div class="text-4xl font-bold mb-2" id="timerDisplay" style="color: var(--accent);">25:00</div>
                     <div class="flex justify-center gap-2 mb-3">
-                        <button onclick="startTimer()" class="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition">
+                        <button onclick="startTimer()" class="px-3 py-1 text-white rounded-lg text-sm transition" style="background: var(--accent);">
                             <span class="material-symbols-outlined text-sm align-middle">play_arrow</span> Start
                         </button>
-                        <button onclick="pauseTimer()" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition">
+                        <button onclick="pauseTimer()" class="px-3 py-1 rounded-lg text-sm transition" style="background: var(--bg-nav-hover); color: var(--text-primary);">
                             <span class="material-symbols-outlined text-sm align-middle">pause</span> Pause
                         </button>
-                        <button onclick="resetTimer()" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition">
+                        <button onclick="resetTimer()" class="px-3 py-1 rounded-lg text-sm transition" style="background: var(--bg-nav-hover); color: var(--text-primary);">
                             <span class="material-symbols-outlined text-sm align-middle">refresh</span>
                         </button>
                     </div>
                     <div class="flex justify-center gap-1">
-                        <button onclick="setTimer(25)" class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">25m</button>
-                        <button onclick="setTimer(15)" class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">15m</button>
-                        <button onclick="setTimer(5)" class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">5m</button>
+                        <button onclick="setTimer(25)" class="px-2 py-1 text-xs rounded transition" style="background: var(--accent-light); color: var(--accent-text);">25m</button>
+                        <button onclick="setTimer(15)" class="px-2 py-1 text-xs rounded transition" style="background: var(--accent-light); color: var(--accent-text);">15m</button>
+                        <button onclick="setTimer(5)" class="px-2 py-1 text-xs rounded transition" style="background: var(--accent-light); color: var(--accent-text);">5m</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pinned Messages Section -->
+        <div style="border-bottom: 1px solid var(--border-main);">
+            <button onclick="togglePinnedSection()" class="w-full px-4 py-2 flex items-center justify-between hover:opacity-80 transition">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg" style="color: var(--accent);">push_pin</span>
+                    <h3 class="font-semibold text-sm t-text-secondary">Pinned Messages <span id="pinnedCount" class="t-text-muted">(0)</span></h3>
+                </div>
+                <span id="pinnedChevron" class="material-symbols-outlined text-sm t-text-muted transition-transform">expand_more</span>
+            </button>
+            <div id="pinnedMessagesContainer" class="hidden">
+                <div id="pinnedMessagesList" class="max-h-48 overflow-y-auto px-2 pb-2 space-y-1">
+                    <p class="text-center t-text-muted text-xs py-3">No pinned messages yet</p>
                 </div>
             </div>
         </div>
 
         <!-- Members Section -->
         <div class="flex-1 overflow-y-auto">
-            <div class="px-4 py-2 flex items-center gap-2 border-b border-gray-100">
-                <span class="material-symbols-outlined text-gray-500 text-lg">group</span>
-                <h3 class="font-semibold text-gray-700 text-sm">Members ({{ members|length }})</h3>
+            <div class="px-4 py-2 flex items-center gap-2" style="border-bottom: 1px solid var(--border-card);">
+                <span class="material-symbols-outlined text-lg t-text-muted">group</span>
+                <h3 class="font-semibold text-sm t-text-secondary">Members <span id="onlineCount" class="t-text-muted">({{ members|length }})</span></h3>
             </div>
-            <div class="p-2 space-y-1">
+            <div id="membersList" class="p-2 space-y-1">
                 {% for member in members %}
-                <div class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition">
-                    {% if member.user.userprofile.avatar %}
-                    <img src="{{ member.user.userprofile.avatar.url }}" class="w-8 h-8 rounded-full object-cover">
-                    {% else %}
-                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-purple-600 text-sm">person</span>
+                <div class="flex items-center gap-2 p-2 rounded-lg transition member-item" data-user-id="{{ member.user.id }}" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'">
+                    <div class="relative">
+                        {% if member.user.userprofile.profile_image %}
+                        <img src="{{ member.user.userprofile.profile_image.url }}" class="w-8 h-8 rounded-full object-cover">
+                        {% else %}
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--accent-light);">
+                            <span class="material-symbols-outlined text-sm" style="color: var(--accent);">person</span>
+                        </div>
+                        {% endif %}
+                        <span class="presence-dot absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2" style="border-color: var(--bg-sidebar); background: #9ca3af;" title="Offline"></span>
                     </div>
-                    {% endif %}
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-800 truncate">{{ member.user.username }}</p>
-                        <p class="text-xs text-gray-500 capitalize">{{ member.role }}</p>
+                        <p class="text-sm font-medium truncate t-text-primary">{{ member.user.username }}</p>
+                        <p class="text-xs capitalize t-text-muted member-status">{{ member.role }}</p>
                     </div>
                     {% if member.role == 'owner' %}
                     <span class="material-symbols-outlined text-yellow-500 text-sm" title="Owner">star</span>
                     {% endif %}
                 </div>
                 {% empty %}
-                <p class="text-center text-gray-400 text-sm py-4">No members</p>
+                <p class="text-center t-text-muted text-sm py-4">No members</p>
                 {% endfor %}
             </div>
         </div>
@@ -226,19 +313,18 @@
 
 <!-- Delete Room Modal -->
 {% if membership.role == 'owner' %}
-<div id="deleteRoomModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md mx-4">
+<div id="deleteRoomModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4">
         <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <span class="material-symbols-outlined text-red-600">warning</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">Delete Room?</h2>
+            <h2 class="text-lg font-bold t-text-primary">Delete Room?</h2>
         </div>
-        <p class="text-gray-600 mb-2">Are you sure you want to delete <strong>{{ room.name }}</strong>?</p>
-        <p class="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+        <p class="t-text-secondary mb-2">Are you sure you want to delete <strong>{{ room.name }}</strong>?</p>
+        <p class="text-sm t-text-muted mb-6">This action cannot be undone.</p>
         <div class="flex gap-3 justify-end">
-            <button onclick="closeDeleteRoomModal()" 
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            <button onclick="closeDeleteRoomModal()" class="t-btn-secondary">
                 Cancel
             </button>
             <form method="POST" action="{% url 'rooms:delete_room' room.id %}" class="inline">
@@ -252,19 +338,18 @@
 </div>
 
 <!-- Delete Channel Modal -->
-<div id="deleteChannelModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md mx-4">
+<div id="deleteChannelModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4">
         <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <span class="material-symbols-outlined text-red-600">warning</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">Delete Channel?</h2>
+            <h2 class="text-lg font-bold t-text-primary">Delete Channel?</h2>
         </div>
-        <p class="text-gray-600 mb-2">Are you sure you want to delete <strong>#{{ channel.name }}</strong>?</p>
-        <p class="text-sm text-gray-500 mb-6">All messages in this channel will be permanently deleted.</p>
+        <p class="t-text-secondary mb-2">Are you sure you want to delete <strong>#{{ channel.name }}</strong>?</p>
+        <p class="text-sm t-text-muted mb-6">All messages in this channel will be permanently deleted.</p>
         <div class="flex gap-3 justify-end">
-            <button onclick="closeDeleteChannelModal()" 
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            <button onclick="closeDeleteChannelModal()" class="t-btn-secondary">
                 Cancel
             </button>
             <form method="POST" action="{% url 'rooms:delete_channel' room.id channel.id %}" class="inline">
@@ -278,32 +363,31 @@
 </div>
 
 <!-- Create Channel Modal -->
-<div id="channelModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md mx-4 w-full">
+<div id="channelModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4 w-full">
         <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-purple-600">tag</span>
+            <div class="t-accent-icon-wrap w-10 h-10">
+                <span class="material-symbols-outlined" style="color: var(--accent);">tag</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">Create Channel</h2>
+            <h2 class="text-lg font-bold t-text-primary">Create Channel</h2>
         </div>
         <form method="POST" action="{% url 'rooms:create_channel' room.id %}">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="channel_name" class="block text-sm font-medium text-gray-700 mb-1">Channel Name</label>
+                <label for="channel_name" class="block text-sm font-medium t-text-secondary mb-1">Channel Name</label>
                 <input type="text" id="channel_name" name="name" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    class="t-input"
                     placeholder="e.g. homework, announcements" maxlength="100">
             </div>
             <div class="mb-4">
-                <label for="channel_emoji" class="block text-sm font-medium text-gray-700 mb-1">Emoji (optional)</label>
+                <label for="channel_emoji" class="block text-sm font-medium t-text-secondary mb-1">Emoji (optional)</label>
                 <input type="text" id="channel_emoji" name="emoji"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    class="t-input"
                     placeholder="📚 or leave blank for #" maxlength="10">
             </div>
             <div class="mb-4">
-                <label for="channel_color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <select id="channel_color" name="color"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label for="channel_color" class="block text-sm font-medium t-text-secondary mb-1">Color</label>
+                <select id="channel_color" name="color" class="t-input">
                     <option value="purple">Purple</option>
                     <option value="blue">Blue</option>
                     <option value="green">Green</option>
@@ -315,12 +399,10 @@
                 </select>
             </div>
             <div class="flex gap-3 justify-end">
-                <button type="button" onclick="closeChannelModal()"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                <button type="button" onclick="closeChannelModal()" class="t-btn-secondary">
                     Cancel
                 </button>
-                <button type="submit"
-                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                <button type="submit" class="t-btn-primary">
                     Create Channel
                 </button>
             </div>
@@ -329,32 +411,31 @@
 </div>
 
 <!-- Edit Channel Modal -->
-<div id="editChannelModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md mx-4 w-full">
+<div id="editChannelModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4 w-full">
         <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-purple-600">edit</span>
+            <div class="t-accent-icon-wrap w-10 h-10">
+                <span class="material-symbols-outlined" style="color: var(--accent);">edit</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">Edit Channel</h2>
+            <h2 class="text-lg font-bold t-text-primary">Edit Channel</h2>
         </div>
         <form method="POST" action="{% url 'rooms:edit_channel' room.id channel.id %}">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="edit_channel_name" class="block text-sm font-medium text-gray-700 mb-1">Channel Name</label>
+                <label for="edit_channel_name" class="block text-sm font-medium t-text-secondary mb-1">Channel Name</label>
                 <input type="text" id="edit_channel_name" name="name" required value="{{ channel.name }}"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    class="t-input"
                     maxlength="100">
             </div>
             <div class="mb-4">
-                <label for="edit_channel_emoji" class="block text-sm font-medium text-gray-700 mb-1">Emoji (optional)</label>
+                <label for="edit_channel_emoji" class="block text-sm font-medium t-text-secondary mb-1">Emoji (optional)</label>
                 <input type="text" id="edit_channel_emoji" name="emoji" value="{{ channel.emoji }}"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    class="t-input"
                     placeholder="📚 or leave blank for #" maxlength="10">
             </div>
             <div class="mb-4">
-                <label for="edit_channel_color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <select id="edit_channel_color" name="color"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label for="edit_channel_color" class="block text-sm font-medium t-text-secondary mb-1">Color</label>
+                <select id="edit_channel_color" name="color" class="t-input">
                     <option value="purple" {% if channel.color == 'purple' %}selected{% endif %}>Purple</option>
                     <option value="blue" {% if channel.color == 'blue' %}selected{% endif %}>Blue</option>
                     <option value="green" {% if channel.color == 'green' %}selected{% endif %}>Green</option>
@@ -366,12 +447,10 @@
                 </select>
             </div>
             <div class="flex gap-3 justify-end">
-                <button type="button" onclick="closeEditChannelModal()"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                <button type="button" onclick="closeEditChannelModal()" class="t-btn-secondary">
                     Cancel
                 </button>
-                <button type="submit"
-                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                <button type="submit" class="t-btn-primary">
                     Save Changes
                 </button>
             </div>
@@ -408,10 +487,37 @@ const currentUser = "{{ request.user.username }}";
         const data = JSON.parse(e.data);
         const container = document.getElementById('messagesContainer');
         const list = document.getElementById('messagesList');
+        
+        // Handle file upload from other users
+        if (data.type === 'file_uploaded') {
+            if (data.username !== currentUser) {
+                addFileMessageToUI(data, false);
+            }
+            return;
+        }
+        
+        // Handle pin update from other users
+        if (data.type === 'pin_updated') {
+            // Update pin button state if message is visible
+            const btn = document.querySelector(`.message-row[data-msg-id="${data.message_id}"] .pin-btn`);
+            if (btn) {
+                btn.dataset.pinned = data.pinned ? 'true' : 'false';
+                btn.title = data.pinned ? 'Unpin' : 'Pin';
+                btn.querySelector('span').style.color = data.pinned ? 'var(--accent)' : '#888';
+            }
+            // Refresh pinned sidebar if open
+            if (pinnedSectionOpen) {
+                loadPinnedMessages();
+            }
+            // Update count
+            loadPinnedCount();
+            return;
+        }
+        
         const isOwn = data.user === currentUser;
         
         // Remove empty state if present
-        const emptyState = list.querySelector('.text-center.text-gray-400');
+        const emptyState = list.querySelector('.text-center.t-text-muted');
         if (emptyState) {
             emptyState.remove();
         }
@@ -422,20 +528,20 @@ const currentUser = "{{ request.user.username }}";
         if (isOwn) {
             msgDiv.innerHTML = `
                 <div class="max-w-xs">
-                    <div class="bg-purple-500 text-white px-3 py-2 rounded-2xl rounded-br-sm">
+                    <div class="px-3 py-2 rounded-2xl rounded-br-sm" style="background: var(--accent); color: white;">
                         <p class="text-sm">${data.message}</p>
                     </div>
-                    <p class="text-xs text-gray-400 text-right mt-0.5">Just now</p>
+                    <p class="text-xs t-text-muted text-right mt-0.5">Just now</p>
                 </div>
             `;
         } else {
             msgDiv.innerHTML = `
                 <div class="max-w-xs">
-                    <p class="text-xs text-gray-500 mb-0.5">${data.user}</p>
-                    <div class="bg-gray-100 text-gray-800 px-3 py-2 rounded-2xl rounded-bl-sm">
+                    <p class="text-xs t-text-secondary mb-0.5">${data.user}</p>
+                    <div class="px-3 py-2 rounded-2xl rounded-bl-sm" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-card);">
                         <p class="text-sm">${data.message}</p>
                     </div>
-                    <p class="text-xs text-gray-400 mt-0.5">Just now</p>
+                    <p class="text-xs t-text-muted mt-0.5">Just now</p>
                 </div>
             `;
         }
@@ -443,15 +549,143 @@ const currentUser = "{{ request.user.username }}";
         container.scrollTop = container.scrollHeight;
     };
 
+    // File upload handling
+    let selectedFiles = [];
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const filePreviewList = document.getElementById('filePreviewList');
+    const csrfToken = "{{ csrf_token }}";
+
+    fileInput.addEventListener('change', function(e) {
+        selectedFiles = Array.from(e.target.files);
+        updateFilePreview();
+    });
+
+    function updateFilePreview() {
+        if (selectedFiles.length === 0) {
+            filePreview.classList.add('hidden');
+            return;
+        }
+        filePreview.classList.remove('hidden');
+        filePreviewList.innerHTML = selectedFiles.map((file, index) => {
+            const isImage = file.type.startsWith('image/');
+            const icon = isImage ? 'image' : 'description';
+            return `
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm" style="background: var(--bg-item); border: 1px solid var(--border-card);">
+                    <span class="material-symbols-outlined text-base" style="color: var(--accent);">${icon}</span>
+                    <span class="t-text-primary max-w-[120px] truncate">${file.name}</span>
+                    <button onclick="removeFile(${index})" class="hover:opacity-70">
+                        <span class="material-symbols-outlined text-base text-red-400">close</span>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updateFilePreview();
+    }
+
     document.getElementById('sendBtn').onclick = function() {
         const input = document.getElementById('messageInput');
-        if (input.value.trim()) {
-            socket.send(JSON.stringify({
-                'message': input.value
-            }));
+        const msg = input.value.trim();
+        
+        if (selectedFiles.length > 0) {
+            uploadFiles(msg);
+            input.value = '';
+            return;
+        }
+        
+        if (msg) {
+            socket.send(JSON.stringify({ 'message': msg }));
             input.value = '';
         }
     };
+
+    async function uploadFiles(messageText) {
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+        
+        for (const file of selectedFiles) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('message', messageText);
+            
+            try {
+                const res = await fetch(`/rooms/${roomId}/channels/${channelId}/upload/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.ok) {
+                    // Broadcast to others
+                    socket.send(JSON.stringify({
+                        type: 'file_upload',
+                        message_id: data.message_id,
+                        file_url: data.file_url,
+                        filename: data.filename,
+                        is_image: data.is_image,
+                        content: data.content,
+                        username: data.username
+                    }));
+                    
+                    // Add to UI
+                    addFileMessageToUI(data, true);
+                } else {
+                    alert('Upload failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert('Upload failed: ' + err.message);
+            }
+            messageText = '';
+        }
+        
+        selectedFiles = [];
+        updateFilePreview();
+        fileInput.value = '';
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<span class="material-symbols-outlined text-lg">send</span>';
+    }
+
+    function addFileMessageToUI(data, isSent) {
+        const container = document.getElementById('messagesContainer');
+        const list = document.getElementById('messagesList');
+        const emptyState = list.querySelector('.text-center.t-text-muted');
+        if (emptyState) emptyState.remove();
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = isSent ? 'flex justify-end' : 'flex justify-start';
+        
+        let fileHtml = '';
+        if (data.is_image) {
+            fileHtml = `<div class="mb-1 rounded-xl overflow-hidden" style="max-width: 250px;">
+                <img src="${data.file_url}" alt="${data.filename}" class="w-full rounded-xl cursor-pointer" style="max-height: 200px; object-fit: cover;" onclick="window.open('${data.file_url}', '_blank')">
+            </div>`;
+        } else {
+            const bgStyle = isSent ? 'background: var(--accent); color: white;' : 'background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);';
+            fileHtml = `<a href="${data.file_url}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl mb-1 text-sm" style="${bgStyle}">
+                <span class="material-symbols-outlined text-sm">description</span>
+                <span class="truncate">${data.filename}</span>
+                <span class="material-symbols-outlined text-sm">download</span>
+            </a>`;
+        }
+        
+        const contentHtml = data.content ? `<div class="px-3 py-2 rounded-2xl ${isSent ? 'rounded-br-sm' : 'rounded-bl-sm'}" style="${isSent ? 'background: var(--accent); color: white;' : 'background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-card);'}"><p class="text-sm">${data.content}</p></div>` : '';
+        
+        if (isSent) {
+            msgDiv.innerHTML = `<div class="max-w-xs">${fileHtml}${contentHtml}<p class="text-xs t-text-muted text-right mt-0.5">Just now</p></div>`;
+        } else {
+            msgDiv.innerHTML = `<div class="max-w-xs"><p class="text-xs t-text-secondary mb-0.5">${data.username}</p>${fileHtml}${contentHtml}<p class="text-xs t-text-muted mt-0.5">Just now</p></div>`;
+        }
+        
+        list.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    }
 
     document.getElementById('messageInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -569,6 +803,52 @@ const currentUser = "{{ request.user.username }}";
         Notification.requestPermission();
     }
 
+    // Edit/Delete channel messages
+    function startEditChannelMsg(id) {
+        document.getElementById(`channel-msg-${id}`).classList.add('hidden');
+        document.getElementById(`channel-edit-${id}`).classList.remove('hidden');
+        const ta = document.getElementById(`channel-edit-input-${id}`);
+        ta.focus();
+        ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
+
+    function cancelEditChannelMsg(id) {
+        document.getElementById(`channel-msg-${id}`).classList.remove('hidden');
+        document.getElementById(`channel-edit-${id}`).classList.add('hidden');
+    }
+
+    async function submitEditChannelMsg(id) {
+        const content = document.getElementById(`channel-edit-input-${id}`).value.trim();
+        if (!content) return;
+        const res = await fetch(`/rooms/${roomId}/channels/${channelId}/messages/${id}/edit/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ content }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+            document.getElementById(`channel-msg-${id}`).innerHTML = `<p class="text-sm">${data.content}</p>`;
+            cancelEditChannelMsg(id);
+        }
+    }
+
+    async function deleteChannelMsg(id) {
+        if (!confirm('Delete this message?')) return;
+        const res = await fetch(`/rooms/${roomId}/channels/${channelId}/messages/${id}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+        });
+        const data = await res.json();
+        if (data.ok) {
+            const row = document.querySelector(`.message-row[data-msg-id="${id}"]`);
+            if (row) {
+                row.className = 'flex justify-end';
+                row.removeAttribute('data-msg-id');
+                row.innerHTML = `<p class="text-xs italic px-3 py-2 rounded-full t-text-muted" style="background: var(--bg-item); border: 1px solid var(--border-card);">Message deleted</p>`;
+            }
+        }
+    }
+
     // Left Sidebar Toggle
     const LEFT_SIDEBAR_KEY = 'channel_left_sidebar_collapsed';
     
@@ -582,6 +862,497 @@ const currentUser = "{{ request.user.username }}";
     if (localStorage.getItem(LEFT_SIDEBAR_KEY) === 'true') {
         document.getElementById('leftSidebar').classList.add('collapsed');
     }
+
+    // ========== PINNED MESSAGES ==========
+    let pinnedSectionOpen = false;
+
+    function togglePinnedSection() {
+        const container = document.getElementById('pinnedMessagesContainer');
+        const chevron = document.getElementById('pinnedChevron');
+        pinnedSectionOpen = !pinnedSectionOpen;
+        
+        if (pinnedSectionOpen) {
+            container.classList.remove('hidden');
+            chevron.style.transform = 'rotate(180deg)';
+            loadPinnedMessages();
+        } else {
+            container.classList.add('hidden');
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    async function loadPinnedMessages() {
+        try {
+            const res = await fetch(`/rooms/${roomId}/pinned-messages/`);
+            const data = await res.json();
+            
+            if (data.ok) {
+                const list = document.getElementById('pinnedMessagesList');
+                const countEl = document.getElementById('pinnedCount');
+                countEl.textContent = `(${data.count})`;
+                
+                if (data.pinned.length === 0) {
+                    list.innerHTML = '<p class="text-center t-text-muted text-xs py-3">No pinned messages yet</p>';
+                    return;
+                }
+                
+                list.innerHTML = data.pinned.map(pin => {
+                    const channelPrefix = pin.channel_emoji || '#';
+                    const time = new Date(pin.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    return `
+                        <div class="pinned-item p-2 rounded-lg cursor-pointer transition group" 
+                             style="background: var(--bg-card); border: 1px solid var(--border-card);"
+                             onclick="jumpToMessage(${pin.channel_id}, ${pin.message_id})"
+                             onmouseover="this.style.borderColor='var(--accent)'" 
+                             onmouseout="this.style.borderColor='var(--border-card)'">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1 mb-0.5">
+                                        <span class="text-xs font-medium" style="color: var(--accent);">${channelPrefix}${pin.channel_name}</span>
+                                        <span class="text-xs t-text-muted">•</span>
+                                        <span class="text-xs t-text-muted">${pin.username}</span>
+                                    </div>
+                                    <p class="text-xs t-text-primary truncate">${pin.preview}</p>
+                                    <p class="text-[10px] t-text-muted mt-0.5">${time}</p>
+                                </div>
+                                <button onclick="event.stopPropagation(); unpinFromSidebar(${pin.channel_id}, ${pin.message_id})" 
+                                        class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 transition" title="Unpin">
+                                    <span class="material-symbols-outlined text-[14px] text-red-400">close</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } catch (err) {
+            console.error('Failed to load pinned messages:', err);
+        }
+    }
+
+    async function togglePin(messageId) {
+        console.log('[PIN] togglePin called with messageId:', messageId);
+        const btn = document.querySelector(`.message-row[data-msg-id="${messageId}"] .pin-btn`);
+        console.log('[PIN] Button found:', btn);
+        const isPinned = btn?.dataset.pinned === 'true';
+        console.log('[PIN] isPinned:', isPinned);
+        const url = `/rooms/${roomId}/channels/${channelId}/messages/${messageId}/${isPinned ? 'unpin' : 'pin'}/`;
+        console.log('[PIN] URL:', url);
+        
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            });
+            const data = await res.json();
+            console.log('[PIN] Response:', data);
+            
+            if (data.ok) {
+                // Update button state
+                if (btn) {
+                    btn.dataset.pinned = isPinned ? 'false' : 'true';
+                    btn.title = isPinned ? 'Pin' : 'Unpin';
+                    btn.querySelector('span').style.color = isPinned ? '#888' : 'var(--accent)';
+                    console.log('[PIN] Button updated, new pinned state:', btn.dataset.pinned);
+                }
+                // Always update the pinned count
+                loadPinnedCount();
+                // Refresh pinned list if open
+                if (pinnedSectionOpen) {
+                    loadPinnedMessages();
+                }
+                // Broadcast pin update via WebSocket
+                socket.send(JSON.stringify({
+                    type: 'pin_update',
+                    message_id: messageId,
+                    pinned: !isPinned
+                }));
+            } else {
+                console.error('[PIN] Error response:', data);
+            }
+        } catch (err) {
+            console.error('[PIN] Failed to toggle pin:', err);
+        }
+    }
+
+    async function unpinFromSidebar(targetChannelId, messageId) {
+        const url = `/rooms/${roomId}/channels/${targetChannelId}/messages/${messageId}/unpin/`;
+        
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            });
+            const data = await res.json();
+            
+            if (data.ok) {
+                // Update count and list
+                loadPinnedCount();
+                loadPinnedMessages();
+                // Update button if message is visible in current channel
+                const btn = document.querySelector(`.message-row[data-msg-id="${messageId}"] .pin-btn`);
+                if (btn) {
+                    btn.dataset.pinned = 'false';
+                    btn.title = 'Pin';
+                    btn.querySelector('span').style.color = '#888';
+                }
+                // Broadcast via WebSocket
+                socket.send(JSON.stringify({
+                    type: 'pin_update',
+                    message_id: messageId,
+                    pinned: false
+                }));
+            }
+        } catch (err) {
+            console.error('Failed to unpin:', err);
+        }
+    }
+
+    function jumpToMessage(targetChannelId, messageId) {
+        if (parseInt(targetChannelId) !== parseInt(channelId)) {
+            // Navigate to different channel with hash
+            window.location.href = `/rooms/${roomId}/channels/${targetChannelId}/#message-${messageId}`;
+        } else {
+            // Same channel - just scroll and highlight
+            scrollToAndHighlight(messageId);
+        }
+    }
+
+    function scrollToAndHighlight(messageId) {
+        const msgEl = document.getElementById(`message-${messageId}`);
+        if (msgEl) {
+            msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            msgEl.classList.add('highlight-message');
+            setTimeout(() => msgEl.classList.remove('highlight-message'), 2500);
+        }
+    }
+
+    // Check for hash on page load to jump to message
+    document.addEventListener('DOMContentLoaded', function() {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#message-')) {
+            const messageId = hash.replace('#message-', '');
+            setTimeout(() => scrollToAndHighlight(messageId), 500);
+        }
+        // Load pinned count on page load
+        loadPinnedCount();
+    });
+
+    async function loadPinnedCount() {
+        try {
+            const res = await fetch(`/rooms/${roomId}/pinned-messages/`);
+            const data = await res.json();
+            if (data.ok) {
+                document.getElementById('pinnedCount').textContent = `(${data.count})`;
+            }
+        } catch (err) {}
+    }
+
+    // ========== PRESENCE / ONLINE STATUS ==========
+    async function loadPresence() {
+        try {
+            const res = await fetch(`/rooms/${roomId}/presence/`);
+            const data = await res.json();
+            if (data.ok) {
+                updatePresenceUI(data.presence);
+                document.getElementById('onlineCount').textContent = `(${data.online_count} online)`;
+            }
+        } catch (err) {
+            console.error('Failed to load presence:', err);
+        }
+    }
+
+    function updatePresenceUI(presenceList) {
+        presenceList.forEach(p => {
+            const memberEl = document.querySelector(`.member-item[data-user-id="${p.user_id}"]`);
+            if (memberEl) {
+                const dot = memberEl.querySelector('.presence-dot');
+                if (dot) {
+                    dot.style.background = p.is_online ? '#22c55e' : '#9ca3af';
+                    dot.title = p.is_online ? 'Online' : (p.last_seen ? `Last seen ${formatLastSeen(p.last_seen)}` : 'Offline');
+                }
+            }
+        });
+    }
+
+    function updateSinglePresence(userId, isOnline) {
+        const memberEl = document.querySelector(`.member-item[data-user-id="${userId}"]`);
+        if (memberEl) {
+            const dot = memberEl.querySelector('.presence-dot');
+            if (dot) {
+                dot.style.background = isOnline ? '#22c55e' : '#9ca3af';
+                dot.title = isOnline ? 'Online' : 'Offline';
+            }
+        }
+        // Update online count
+        loadPresence();
+    }
+
+    function formatLastSeen(isoString) {
+        const date = new Date(isoString);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return date.toLocaleDateString();
+    }
+
+    // ========== MENTION HIGHLIGHTING ==========
+    function highlightMentions(text) {
+        if (!text) return text;
+        // Replace @username with highlighted span
+        return text.replace(/@(\w+)/g, '<span class="mention-highlight">@$1</span>');
+    }
+
+    function applyMentionHighlighting() {
+        document.querySelectorAll('.message-content').forEach(el => {
+            if (!el.dataset.mentionProcessed) {
+                el.innerHTML = highlightMentions(el.textContent);
+                el.dataset.mentionProcessed = 'true';
+            }
+        });
+    }
+
+    // ========== READ RECEIPTS ==========
+    async function markMessagesSeen() {
+        try {
+            await fetch(`/rooms/${roomId}/channels/${channelId}/mark-seen/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+            // Broadcast read receipt
+            socket.send(JSON.stringify({
+                type: 'read_receipt',
+                message_ids: []
+            }));
+        } catch (err) {
+            console.error('Failed to mark messages seen:', err);
+        }
+    }
+
+    async function loadReadStatus() {
+        try {
+            const res = await fetch(`/rooms/${roomId}/channels/${channelId}/read-status/`);
+            const data = await res.json();
+            if (data.ok) {
+                updateReadReceiptUI(data.read_data);
+            }
+        } catch (err) {
+            console.error('Failed to load read status:', err);
+        }
+    }
+
+    function updateReadReceiptUI(readData) {
+        for (const [msgId, info] of Object.entries(readData)) {
+            const msgEl = document.getElementById(`message-${msgId}`);
+            if (msgEl && msgEl.classList.contains('own-message')) {
+                let receiptEl = msgEl.querySelector('.read-receipt');
+                if (!receiptEl) {
+                    receiptEl = document.createElement('p');
+                    receiptEl.className = 'read-receipt text-[10px] t-text-muted text-right mt-0.5';
+                    msgEl.querySelector('.relative')?.appendChild(receiptEl);
+                }
+                if (info.count > 0) {
+                    const readers = info.readers.slice(0, 2).join(', ');
+                    receiptEl.textContent = info.count === 1 ? `Seen by ${readers}` : `Seen by ${info.count}`;
+                }
+            }
+        }
+    }
+
+    // ========== MENTION NOTIFICATIONS ==========
+    let unreadMentionCount = 0;
+
+    async function loadMentions() {
+        try {
+            const res = await fetch('/rooms/mentions/');
+            const data = await res.json();
+            if (data.ok) {
+                unreadMentionCount = data.unread_count;
+                updateMentionBadge();
+            }
+        } catch (err) {
+            console.error('Failed to load mentions:', err);
+        }
+    }
+
+    function updateMentionBadge() {
+        let badge = document.getElementById('mentionBadge');
+        if (!badge) {
+            // Create badge in header if doesn't exist
+            const header = document.querySelector('.channel-header-title');
+            if (header) {
+                badge = document.createElement('span');
+                badge.id = 'mentionBadge';
+                badge.className = 'ml-2 px-1.5 py-0.5 text-xs rounded-full text-white';
+                badge.style.background = 'var(--accent)';
+                badge.style.display = 'none';
+                header.appendChild(badge);
+            }
+        }
+        if (badge) {
+            if (unreadMentionCount > 0) {
+                badge.textContent = `@${unreadMentionCount}`;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+
+    // ========== INITIALIZE ON PAGE LOAD ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load presence
+        loadPresence();
+        
+        // Mark messages as seen
+        markMessagesSeen();
+        
+        // Load read status for own messages
+        setTimeout(loadReadStatus, 500);
+        
+        // Load mention count
+        loadMentions();
+        
+        // Apply mention highlighting to existing messages
+        applyMentionHighlighting();
+    });
+
+    // Handle WebSocket events for new features
+    const originalOnMessage = socket.onmessage;
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        
+        // Handle presence updates
+        if (data.type === 'presence_update') {
+            updateSinglePresence(data.user_id, data.is_online);
+            return;
+        }
+        
+        // Handle read receipt updates
+        if (data.type === 'read_receipt_update') {
+            if (data.username !== currentUser) {
+                loadReadStatus();
+            }
+            return;
+        }
+        
+        // Handle mention notifications
+        if (data.type === 'mention_received') {
+            unreadMentionCount++;
+            updateMentionBadge();
+            // Show toast notification
+            showMentionToast(data.mentioned_by, data.preview);
+            return;
+        }
+        
+        // Call original handler for other messages
+        if (originalOnMessage) {
+            originalOnMessage.call(socket, e);
+        }
+    };
+
+    function showMentionToast(mentionedBy, preview) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 p-3 rounded-lg shadow-lg z-50 max-w-xs';
+        toast.style.background = 'var(--bg-card)';
+        toast.style.border = '1px solid var(--accent)';
+        toast.innerHTML = `
+            <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-sm" style="color: var(--accent);">alternate_email</span>
+                <div>
+                    <p class="text-sm font-medium t-text-primary">@${mentionedBy} mentioned you</p>
+                    <p class="text-xs t-text-muted truncate">${preview}</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+    }
 </script>
+
+<style>
+    .action-bar {
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-right: 6px;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        opacity: 0;
+        pointer-events: none;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 3px;
+    }
+    .group:hover .action-bar {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--bg-card);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .action-btn:hover {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        transform: scale(1.1);
+    }
+    .action-bar-left {
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: 6px;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        opacity: 0;
+        pointer-events: none;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 3px;
+    }
+    .group:hover .action-bar-left {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .highlight-message {
+        animation: highlightPulse 2.5s ease-out;
+    }
+    @keyframes highlightPulse {
+        0% { background: var(--accent-light); box-shadow: 0 0 0 4px var(--accent-light); }
+        100% { background: transparent; box-shadow: none; }
+    }
+    .message-row {
+        border-radius: 12px;
+        transition: background 0.3s, box-shadow 0.3s;
+    }
+    .mention-highlight {
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    .presence-dot {
+        transition: background 0.3s;
+    }
+    .read-receipt {
+        font-size: 10px;
+        opacity: 0.7;
+    }
+</style>
 
 {% endblock %}
