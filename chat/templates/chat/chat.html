@@ -294,7 +294,7 @@
                 if (data.ok) {
                     // Broadcast to other users
                     socket.send(JSON.stringify({
-                        type: 'file_upload',
+                        type: 'file_uploaded',
                         message_id: data.message_id,
                         file_url: data.file_url,
                         filename: data.filename,

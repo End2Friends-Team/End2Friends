@@ -55,7 +55,6 @@ def chat_room(request, room_name):
     except Exception:
         pass
 
-    # Get user's channels for sidebar
     user_channels = request.user.channels.all()
 
     return render(request, "chat/chat.html", {
@@ -71,7 +70,6 @@ def chat_room(request, room_name):
 def delete_conversation(request, room_id):
     convo = get_object_or_404(Conversation, room_id=room_id)
 
-    # Only allow participants to delete
     if request.user in convo.participants.all():
         convo.delete()
 
@@ -115,25 +113,29 @@ def delete_message(request, message_id):
 def upload_file(request, room_name):
     """Handle file uploads for chat messages."""
     conversation = get_object_or_404(Conversation, room_id=room_name)
-    
+
     if request.user not in conversation.participants.all():
         return JsonResponse({"error": "Not a participant"}, status=403)
-    
+
     uploaded_file = request.FILES.get('file')
     message_text = request.POST.get('message', '').strip()
-    
+
     if not uploaded_file:
         return JsonResponse({"error": "No file provided"}, status=400)
-    
+
     try:
+        # STEP 1 — Create message WITHOUT file
         msg = Message.objects.create(
             conversation=conversation,
             user=request.user,
             content=message_text,
-            file=uploaded_file,
             original_filename=uploaded_file.name
         )
-        
+
+        # STEP 2 — Assign file and save (this triggers Cloudinary upload)
+        msg.file = uploaded_file
+        msg.save()
+
         return JsonResponse({
             "ok": True,
             "message_id": msg.id,
@@ -143,6 +145,7 @@ def upload_file(request, room_name):
             "content": msg.content,
             "username": request.user.username,
         })
+
     except ValidationError as e:
         return JsonResponse({"error": str(e)}, status=400)
     except Exception as e:
