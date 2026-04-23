@@ -24,16 +24,16 @@
 {% block content %}
 <div class="flex w-full flex-1 h-screen max-h-screen overflow-hidden">
     <!-- Left Sidebar (Collapsible) -->
-    <div id="leftSidebar" class="w-52 bg-violet-100/80 flex flex-col border-r border-purple-200 transition-all duration-300 relative">
+    <div id="leftSidebar" class="w-52 flex flex-col transition-all duration-300 relative" style="background: var(--bg-sidebar); border-right: 1px solid var(--border-main);">
         <!-- Collapse Toggle Button -->
         <button id="leftSidebarToggle" onclick="toggleLeftSidebar()" 
-                class="absolute -right-3 top-4 z-10 w-6 h-6 bg-white border border-purple-200 rounded-full shadow-sm flex items-center justify-center hover:bg-purple-50 transition">
-            <span class="material-symbols-outlined text-purple-600 text-sm" id="leftToggleIcon">chevron_left</span>
+                class="absolute -right-3 top-4 z-10 w-6 h-6 rounded-full shadow-sm flex items-center justify-center transition" style="background: var(--bg-card); border: 1px solid var(--border-main);">
+            <span class="material-symbols-outlined text-sm" id="leftToggleIcon" style="color: var(--accent);">chevron_left</span>
         </button>
         
         <!-- Room Header -->
-        <div class="p-3 flex justify-between items-center bg-purple-200/50">
-            <h1 class="font-semibold text-gray-800 truncate sidebar-text">{{ room.name }}</h1>
+        <div class="p-3 flex justify-between items-center" style="background: var(--bg-nav-active);">
+            <h1 class="font-semibold truncate sidebar-text t-text-primary">{{ room.name }}</h1>
             <div class="flex gap-1">
                 {% if membership.role == 'owner' %}
                 <button onclick="openDeleteModal()" class="p-1 rounded hover:bg-red-100 transition" title="Delete room">
@@ -45,11 +45,11 @@
 
         {% if membership.role == 'owner' %}
         <!-- Invite Code -->
-        <div class="px-3 py-2 bg-purple-50 border-b border-purple-200 sidebar-content">
+        <div class="px-3 py-2 sidebar-content" style="background: var(--bg-item); border-bottom: 1px solid var(--border-main);">
             <div class="flex items-center gap-1">
-                <code id="inviteCode" class="text-xs font-mono text-purple-600 flex-1 truncate">{{ room.invite_code }}</code>
-                <button onclick="copyInviteCode()" class="p-1 hover:bg-purple-200 rounded" title="Copy invite code">
-                    <span class="material-symbols-outlined text-purple-500 text-sm">content_copy</span>
+                <code id="inviteCode" class="text-xs font-mono flex-1 truncate" style="color: var(--accent);">{{ room.invite_code }}</code>
+                <button onclick="copyInviteCode()" class="p-1 rounded transition" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'" title="Copy invite code">
+                    <span class="material-symbols-outlined text-sm" style="color: var(--accent);">content_copy</span>
                 </button>
             </div>
         </div>
@@ -57,10 +57,10 @@
 
         <!-- Channels Header -->
         <div class="px-3 py-2 flex justify-between items-center sidebar-content">
-            <span class="text-xs font-semibold text-gray-500 uppercase">Channels</span>
+            <span class="text-xs font-semibold uppercase t-text-muted">Channels</span>
             {% if membership.role == 'owner' %}
-            <button onclick="openChannelModal()" class="hover:bg-purple-200 rounded p-0.5 transition" title="New channel">
-                <span class="material-symbols-outlined text-purple-500 text-sm">add</span>
+            <button onclick="openChannelModal()" class="rounded p-0.5 transition" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'" title="New channel">
+                <span class="material-symbols-outlined text-sm" style="color: var(--accent);">add</span>
             </button>
             {% endif %}
         </div>
@@ -70,13 +70,13 @@
             {% if channels %}
                 {% for channel in channels %}
                 <a href="{% url 'rooms:channel_chat' room.id channel.id %}" 
-                   class="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition text-gray-600 hover:bg-purple-200/50 hover:text-purple-700">
+                   class="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition channel-link" style="color: var(--text-secondary);" onmouseover="this.style.background='var(--bg-nav-hover)'; this.style.color='var(--text-nav-active)'" onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)'">
                     <span class="{% if channel.color == 'blue' %}text-blue-400{% elif channel.color == 'green' %}text-green-400{% elif channel.color == 'red' %}text-red-400{% elif channel.color == 'orange' %}text-orange-400{% elif channel.color == 'pink' %}text-pink-400{% elif channel.color == 'yellow' %}text-yellow-500{% elif channel.color == 'gray' %}text-gray-400{% else %}text-purple-400{% endif %}">{% if channel.emoji %}{{ channel.emoji }}{% else %}#{% endif %}</span>
                     <span class="truncate">{{ channel.name }}</span>
                 </a>
                 {% endfor %}
             {% else %}
-                <p class="px-2 py-4 text-center text-gray-400 text-xs">No channels yet</p>
+                <p class="px-2 py-4 text-center t-text-muted text-xs">No channels yet</p>
             {% endif %}
         </div>
     </div>
@@ -95,9 +95,9 @@
         {% endif %}
 
         <!-- Welcome / Empty State -->
-        <div class="flex-1 flex flex-col justify-center items-center p-8">
-            <h1 class="font-bold text-4xl text-gray-800">Welcome to {{ room.name }}</h1>
-            <p class="pt-2 text-gray-600 text-center max-w-md">
+        <div class="flex-1 flex flex-col justify-center items-center p-8" style="background: var(--bg-page);">
+            <h1 class="font-bold text-4xl t-text-primary">Welcome to {{ room.name }}</h1>
+            <p class="pt-2 t-text-secondary text-center max-w-md">
                 This is your {{ room.get_room_type_display }} Room. 
                 {% if channels %}
                     Select a channel from the sidebar to start chatting.
@@ -111,7 +111,7 @@
             </p>
             {% if membership.role == 'owner' and not channels %}
             <button onclick="openChannelModal()" 
-                class="mt-6 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center gap-2">
+                class="mt-6 px-6 py-3 text-white rounded-lg transition flex items-center gap-2" style="background: var(--accent);" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
                 <span class="material-symbols-outlined">add</span>
                 Create First Channel
             </button>
@@ -120,31 +120,31 @@
     </div>
 
     <!-- RIGHT SIDEBAR -->
-    <div id="rightSidebar" class="w-64 bg-white border-l border-gray-200 flex flex-col overflow-hidden">
+    <div id="rightSidebar" class="w-64 flex flex-col overflow-hidden" style="background: var(--bg-sidebar); border-left: 1px solid var(--border-main);">
         <!-- Pomodoro Timer Section -->
-        <div class="p-4 border-b border-gray-200">
+        <div class="p-4" style="border-bottom: 1px solid var(--border-main);">
             <div class="flex items-center gap-2 mb-3">
-                <span class="material-symbols-outlined text-purple-600">timer</span>
-                <h3 class="font-semibold text-gray-800">Pomodoro Timer</h3>
+                <span class="material-symbols-outlined" style="color: var(--accent);">timer</span>
+                <h3 class="font-semibold t-text-primary">Pomodoro Timer</h3>
             </div>
             <div id="pomodoroContainer">
                 <div class="text-center py-4">
-                    <div class="text-4xl font-bold text-purple-600 mb-2" id="timerDisplay">25:00</div>
+                    <div class="text-4xl font-bold mb-2" id="timerDisplay" style="color: var(--accent);">25:00</div>
                     <div class="flex justify-center gap-2 mb-3">
-                        <button onclick="startTimer()" class="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition">
+                        <button onclick="startTimer()" class="px-3 py-1 text-white rounded-lg text-sm transition" style="background: var(--accent);" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
                             <span class="material-symbols-outlined text-sm align-middle">play_arrow</span> Start
                         </button>
-                        <button onclick="pauseTimer()" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition">
+                        <button onclick="pauseTimer()" class="px-3 py-1 rounded-lg text-sm transition" style="background: var(--bg-nav-hover); color: var(--text-primary);">
                             <span class="material-symbols-outlined text-sm align-middle">pause</span> Pause
                         </button>
-                        <button onclick="resetTimer()" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition">
+                        <button onclick="resetTimer()" class="px-3 py-1 rounded-lg text-sm transition" style="background: var(--bg-nav-hover); color: var(--text-primary);">
                             <span class="material-symbols-outlined text-sm align-middle">refresh</span>
                         </button>
                     </div>
                     <div class="flex justify-center gap-1">
-                        <button onclick="setTimer(25)" class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">25m</button>
-                        <button onclick="setTimer(15)" class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">15m</button>
-                        <button onclick="setTimer(5)" class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200">5m</button>
+                        <button onclick="setTimer(25)" class="px-2 py-1 text-xs rounded" style="background: var(--accent-light); color: var(--accent-text);">25m</button>
+                        <button onclick="setTimer(15)" class="px-2 py-1 text-xs rounded" style="background: var(--accent-light); color: var(--accent-text);">15m</button>
+                        <button onclick="setTimer(5)" class="px-2 py-1 text-xs rounded" style="background: var(--accent-light); color: var(--accent-text);">5m</button>
                     </div>
                 </div>
             </div>
@@ -152,30 +152,30 @@
 
         <!-- Members Section -->
         <div class="flex-1 overflow-y-auto">
-            <div class="px-4 py-2 flex items-center gap-2 border-b border-gray-100">
-                <span class="material-symbols-outlined text-gray-500 text-lg">group</span>
-                <h3 class="font-semibold text-gray-700 text-sm">Members ({{ members|length }})</h3>
+            <div class="px-4 py-2 flex items-center gap-2" style="border-bottom: 1px solid var(--border-main);">
+                <span class="material-symbols-outlined text-lg t-text-muted">group</span>
+                <h3 class="font-semibold text-sm t-text-secondary">Members ({{ members|length }})</h3>
             </div>
             <div class="p-2 space-y-1">
                 {% for member in members %}
-                <div class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition">
+                <div class="flex items-center gap-2 p-2 rounded-lg transition" style="background: transparent;" onmouseover="this.style.background='var(--bg-nav-hover)'" onmouseout="this.style.background='transparent'">
                     {% if member.user.userprofile.avatar %}
                     <img src="{{ member.user.userprofile.avatar.url }}" class="w-8 h-8 rounded-full object-cover">
                     {% else %}
-                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-purple-600 text-sm">person</span>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--accent-light);">
+                        <span class="material-symbols-outlined text-sm" style="color: var(--accent);">person</span>
                     </div>
                     {% endif %}
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-800 truncate">{{ member.user.username }}</p>
-                        <p class="text-xs text-gray-500 capitalize">{{ member.role }}</p>
+                        <p class="text-sm font-medium t-text-primary truncate">{{ member.user.username }}</p>
+                        <p class="text-xs t-text-muted capitalize">{{ member.role }}</p>
                     </div>
                     {% if member.role == 'owner' %}
                     <span class="material-symbols-outlined text-yellow-500 text-sm" title="Owner">star</span>
                     {% endif %}
                 </div>
                 {% empty %}
-                <p class="text-center text-gray-400 text-sm py-4">No members</p>
+                <p class="text-center t-text-muted text-sm py-4">No members</p>
                 {% endfor %}
             </div>
         </div>
@@ -184,19 +184,19 @@
 
 <!-- Delete Confirmation Modal -->
 {% if membership.role == 'owner' %}
-<div id="deleteModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md mx-4">
+<div id="deleteModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4">
         <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <span class="material-symbols-outlined text-red-600">warning</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">Delete Room?</h2>
+            <h2 class="text-lg font-bold t-text-primary">Delete Room?</h2>
         </div>
-        <p class="text-gray-600 mb-2">Are you sure you want to delete <strong>{{ room.name }}</strong>?</p>
-        <p class="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+        <p class="t-text-secondary mb-2">Are you sure you want to delete <strong>{{ room.name }}</strong>?</p>
+        <p class="text-sm t-text-muted mb-6">This action cannot be undone.</p>
         <div class="flex gap-3 justify-end">
             <button onclick="closeDeleteModal()" 
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                class="t-btn-secondary">
                 Cancel
             </button>
             <form method="POST" action="{% url 'rooms:delete_room' room.id %}" class="inline">
@@ -213,32 +213,32 @@
 
 <!-- Create Channel Modal -->
 {% if membership.role == 'owner' %}
-<div id="channelModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md mx-4 w-full">
+<div id="channelModal" class="fixed inset-0 t-modal-overlay hidden items-center justify-center z-50">
+    <div class="t-modal shadow-lg p-6 max-w-md mx-4 w-full">
         <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-purple-600">tag</span>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--accent-light);">
+                <span class="material-symbols-outlined" style="color: var(--accent);">tag</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">Create Channel</h2>
+            <h2 class="text-lg font-bold t-text-primary">Create Channel</h2>
         </div>
         <form method="POST" action="{% url 'rooms:create_channel' room.id %}">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="channel_name" class="block text-sm font-medium text-gray-700 mb-1">Channel Name</label>
+                <label for="channel_name" class="block text-sm font-medium t-text-secondary mb-1">Channel Name</label>
                 <input type="text" id="channel_name" name="name" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    class="t-input"
                     placeholder="e.g. homework, announcements" maxlength="100">
             </div>
             <div class="mb-4">
-                <label for="channel_emoji" class="block text-sm font-medium text-gray-700 mb-1">Emoji (optional)</label>
+                <label for="channel_emoji" class="block text-sm font-medium t-text-secondary mb-1">Emoji (optional)</label>
                 <input type="text" id="channel_emoji" name="emoji"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    class="t-input"
                     placeholder="📚 or leave blank for #" maxlength="10">
             </div>
             <div class="mb-4">
-                <label for="channel_color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                <label for="channel_color" class="block text-sm font-medium t-text-secondary mb-1">Color</label>
                 <select id="channel_color" name="color"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    class="t-input">
                     <option value="purple">Purple</option>
                     <option value="blue">Blue</option>
                     <option value="green">Green</option>
@@ -251,11 +251,11 @@
             </div>
             <div class="flex gap-3 justify-end">
                 <button type="button" onclick="closeChannelModal()"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    class="t-btn-secondary">
                     Cancel
                 </button>
                 <button type="submit"
-                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    class="t-btn-primary">
                     Create Channel
                 </button>
             </div>
