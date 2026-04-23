@@ -12,7 +12,7 @@ def channel_file_path(instance, filename):
 
 
 def generate_code():
-    # Generates an 8‑character unique invite code
+    # Generates an 8-character unique invite code
     return uuid.uuid4().hex[:8]
 
 
@@ -36,7 +36,6 @@ class StudyRoom(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Auto‑generated invite code
     invite_code = models.CharField(
         max_length=20,
         unique=True,
@@ -119,7 +118,7 @@ class Channel(models.Model):
     ]
 
     name = models.CharField(max_length=100)
-    emoji = models.CharField(max_length=10, blank=True, default='')  # Channel emoji prefix
+    emoji = models.CharField(max_length=10, blank=True, default='')
     color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='purple')
 
     room = models.ForeignKey(
@@ -141,7 +140,7 @@ class Channel(models.Model):
 
     def __str__(self):
         return f"#{self.name} in {self.room}"
-    
+
     @property
     def display_prefix(self):
         """Return emoji if set, otherwise #"""
@@ -176,8 +175,17 @@ class Message(models.Model):
     def is_image(self):
         if not self.file:
             return False
-        ext = os.path.splitext(self.file.name)[1].lower()
-        return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        # Check stored name for extension first
+        name = getattr(self.file, 'name', '')
+        if isinstance(name, str) and '.' in name:
+            ext = os.path.splitext(name)[1].lower()
+            if ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+                return True
+        # Fall back to original_filename
+        if self.original_filename:
+            ext = os.path.splitext(self.original_filename)[1].lower()
+            return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        return False
 
 
 class PinnedMessage(models.Model):
@@ -269,7 +277,7 @@ class RoomPomodoroSession(models.Model):
         ('break', 'Break'),
         ('completed', 'Completed'),
     ]
-    
+
     room = models.OneToOneField(
         "StudyRoom",
         on_delete=models.CASCADE,
@@ -292,7 +300,7 @@ class RoomPomodoroSession(models.Model):
     ended_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_muted = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return f"{self.room.name} Pomodoro session {self.id}"
 

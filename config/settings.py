@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 import dj_database_url
 import cloudinary
+import logging
 
 # Load .env from project root
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -188,13 +189,17 @@ cloudinary.config(
 # Use Cloudinary if configured, otherwise use local storage
 if os.getenv('CLOUDINARY_CLOUD_NAME'):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    # cloudinary_storage handles URL generation automatically via .url property
-    MEDIA_URL = '/media/'  # Fallback, not actually used with Cloudinary
+    MEDIA_URL = '/media/'
 else:
     # Local file storage for development
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
+# DEBUG--------------------------
+
+logger = logging.getLogger(__name__)
+logger.warning(f"CLOUDINARY_CLOUD_NAME = {os.getenv('CLOUDINARY_CLOUD_NAME')}")
+logger.warning(f"DEFAULT_FILE_STORAGE = {DEFAULT_FILE_STORAGE}")
 
 # ---------------------------------------------------------
 # CUSTOM USER MODEL
