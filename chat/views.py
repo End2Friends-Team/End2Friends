@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
+from cloudinary.uploader import upload as cloudinary_upload
 
 User = get_user_model()
 
@@ -108,10 +109,11 @@ def delete_message(request, message_id):
     return JsonResponse({"ok": True})
 
 
+
+
 @login_required
 @require_POST
 def upload_file(request, room_name):
-    """Handle file uploads for chat messages."""
     conversation = get_object_or_404(Conversation, room_id=room_name)
 
     if request.user not in conversation.participants.all():
@@ -124,26 +126,33 @@ def upload_file(request, room_name):
         return JsonResponse({"error": "No file provided"}, status=400)
 
     try:
-        # STEP 1 — Create message WITHOUT file
+        # STEP 1 — Upload to Cloudinary
+        result = cloudinary_upload(
+            uploaded_file,
+            folder="chat_files"
+        )
+
+        public_id = result.get("public_id")
+        secure_url = result.get("secure_url")
+
+        # STEP 2 — Save message with Cloudinary public_id
         msg = Message.objects.create(
             conversation=conversation,
             user=request.user,
             content=message_text,
             original_filename=uploaded_file.name,
-            file=uploaded_file
+            file=public_id
         )
 
         return JsonResponse({
             "ok": True,
             "message_id": msg.id,
-            "file_url": msg.file.url if msg.file else None,
+            "file_url": secure_url,
             "filename": msg.original_filename,
             "is_image": msg.is_image,
             "content": msg.content,
             "username": request.user.username,
         })
 
-    except ValidationError as e:
-        return JsonResponse({"error": str(e)}, status=400)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
