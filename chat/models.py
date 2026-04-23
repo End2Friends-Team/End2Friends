@@ -118,9 +118,17 @@ class Message(models.Model):
 
     # check if uploaded file is an image by extension
     # (Image.open won't work with Cloudinary-stored files — no local path)
-    @property
-    def is_image(self):
-        if not self.file:
-            return False
-        content_type = getattr(self.file.file, 'content_type', '')
-        return content_type.startswith('image/')
+@property
+def is_image(self):
+    if not self.file:
+        return False
+
+    # Try MIME type first (Cloudinary provides this)
+    content_type = getattr(self.file, 'content_type', None)
+    if content_type and content_type.startswith('image/'):
+        return True
+
+    # Fallback to extension check (safe, no file open)
+    ext = os.path.splitext(self.file.name)[1].lower()
+    return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+
