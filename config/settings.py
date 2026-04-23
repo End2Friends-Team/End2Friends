@@ -197,10 +197,8 @@ else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
 # DEBUG--------------------------
-
-logger = logging.getLogger(__name__)
-logger.warning(f"CLOUDINARY_CLOUD_NAME = {os.getenv('CLOUDINARY_CLOUD_NAME')}")
-logger.warning(f"DEFAULT_FILE_STORAGE = {DEFAULT_FILE_STORAGE}")
+print(f"[SETTINGS DEBUG] CLOUDINARY_CLOUD_NAME = {os.getenv('CLOUDINARY_CLOUD_NAME')}")
+print(f"[SETTINGS DEBUG] DEFAULT_FILE_STORAGE = {DEFAULT_FILE_STORAGE}")
 
 # ---------------------------------------------------------
 # CUSTOM USER MODEL
