@@ -122,5 +122,5 @@ class Message(models.Model):
     def is_image(self):
         if not self.file:
             return False
-        ext = os.path.splitext(self.file.name)[1].lower()
-        return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        content_type = getattr(self.file.file, 'content_type', '')
+        return content_type.startswith('image/')
