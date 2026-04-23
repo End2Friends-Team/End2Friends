@@ -261,6 +261,42 @@ class MessageReadStatus(models.Model):
         return f"{self.user.username} saw message {self.message_id}"
 
 
+class RoomPomodoroSession(models.Model):
+    STATUS_CHOICES = [
+        ('not_started', 'Not Started'),
+        ('running', 'Running'),
+        ('paused', 'Paused'),
+        ('break', 'Break'),
+        ('completed', 'Completed'),
+    ]
+    
+    room = models.OneToOneField(
+        "StudyRoom",
+        on_delete=models.CASCADE,
+        related_name="pomodoro_session"
+    )
+    started_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="started_pomodoro_sessions"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='not_started'
+    )
+    session_duration = models.PositiveIntegerField(default=25)
+    break_duration = models.PositiveIntegerField(default=5)
+    cycles_completed = models.PositiveIntegerField(default=0)
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_muted = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.room.name} Pomodoro session {self.id}"
+
+
 @receiver(post_save, sender=StudyRoom)
 def create_default_channel(sender, instance, created, **kwargs):
     """Auto-create a 'General' channel when a new room is created."""
