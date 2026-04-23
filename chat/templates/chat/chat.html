@@ -55,12 +55,12 @@
                     <p class="text-xs t-text-muted text-right mb-1">{{ message.timestamp|timesince }} ago</p>
                     {% if message.file %}
                     {% if message.is_image %}
-                    <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
-                        <img src="{{ message.file.url }}" alt="{{ message.original_filename }}"
+                    <a href="{{ message.file|file_url }}" target="_blank" class="block mb-2">
+                        <img src="{{ message.file|file_url }}" alt="{{ message.original_filename }}"
                             class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
                     </a>
                     {% else %}
-                    <a href="{{ message.file.url }}" target="_blank"
+                    <a href="{{ message.file|file_url }}" target="_blank"
                         class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-white text-sm"
                         style="background: var(--accent);">
                         <span class="material-symbols-outlined">description</span>
@@ -112,12 +112,12 @@
                     </p>
                     {% if message.file %}
                     {% if message.is_image %}
-                    <a href="{{ message.file.url }}" target="_blank" class="block mb-2">
-                        <img src="{{ message.file.url }}" alt="{{ message.original_filename }}"
+                    <a href="{{ message.file|file_url }}" target="_blank" class="block mb-2">
+                        <img src="{{ message.file|file_url }}" alt="{{ message.original_filename }}"
                             class="max-w-full rounded-xl shadow-sm" style="max-height: 300px;">
                     </a>
                     {% else %}
-                    <a href="{{ message.file.url }}" target="_blank"
+                    <a href="{{ message.file|file_url }}" target="_blank"
                         class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-sm"
                         style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);">
                         <span class="material-symbols-outlined" style="color: var(--accent);">description</span>
