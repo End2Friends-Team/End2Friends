@@ -325,7 +325,7 @@
         sendBtn.innerHTML = '<span class="material-symbols-outlined">send</span>';
     }
 
-    function addFileMessageToUI(data, isSent) {
+function addFileMessageToUI(data, isSent) {
     const emptyState = chatLog.querySelector('.flex.flex-col.items-center');
     if (emptyState) emptyState.remove();
 
@@ -340,37 +340,45 @@
     }
 
     let fileHtml = '';
+
     if (data.is_image) {
         fileHtml = `
             <a href="${data.file_url}" target="_blank" class="block mb-2">
                 <img src="${data.file_url}" alt="${data.filename}"
                      class="max-w-full rounded-xl shadow-sm"
                      style="max-height: 300px;">
-            </a>`;
+            </a>
+        `;
     } else {
-        const bgStyle = isSent ? 'background: var(--accent);' : 'background: var(--bg-card); border: 1px solid var(--border-card);';
-        const textStyle = isSent ? 'color: white;' : 'color: var(--text-primary);';
+        const bgStyle = isSent
+            ? 'background: var(--accent); color: white;'
+            : 'background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary);';
+
         fileHtml = `
             <a href="${data.file_url}" target="_blank"
                class="flex items-center gap-2 px-4 py-3 rounded-xl mb-2 text-sm"
-               style="${bgStyle} ${textStyle}">
+               style="${bgStyle}">
                 <span class="material-symbols-outlined">description</span>
                 <span class="truncate">${data.filename}</span>
                 <span class="material-symbols-outlined text-sm">download</span>
-            </a>`;
+            </a>
+        `;
     }
 
     div.innerHTML = `
         <div class="relative max-w-md">
             <p class="text-xs text-right mb-1" style="color:var(--text-muted)">just now</p>
             ${fileHtml}
-            ${data.content ? `<div class="msg-sent px-4 py-3 text-sm shadow-sm">${data.content}</div>` : ""}
+            ${data.content
+                ? `<div class="msg-sent px-4 py-3 text-sm shadow-sm">${data.content}</div>`
+                : ""}
         </div>
     `;
 
     chatLog.appendChild(div);
     chatLog.scrollTop = chatLog.scrollHeight;
 }
+
 
         const contentHtml = data.content ? `<div class="${isSent ? 'msg-sent' : 'msg-received'} px-4 py-3 text-sm shadow-sm">${data.content}</div>` : '';
 
