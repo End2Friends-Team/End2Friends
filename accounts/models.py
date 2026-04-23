@@ -18,7 +18,6 @@ class User(AbstractUser):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    # The ONLY profile picture field
     profile_image = models.ImageField(
         upload_to="profiles/",
         blank=True,
@@ -31,7 +30,9 @@ class UserProfile(models.Model):
     # Online presence tracking
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True)
-    connection_count = models.PositiveIntegerField(default=0)  # Track multiple tabs/connections
+
+    
+    connection_count = models.PositiveIntegerField(default=0, null=True)
 
     def __str__(self):
         return self.display_name or self.user.username
