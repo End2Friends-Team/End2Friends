@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("accounts", "0004_merge_20260310_0234"),
-        ("chat", "0005_message_original_filename_alter_message_file"),
+        ('chat', '0004_merge_20260226_0229'),
     ]
 
     operations = [

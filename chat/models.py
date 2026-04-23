@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from cloudinary.models import CloudinaryField
 import shortuuid
 import os
 import uuid
@@ -7,7 +8,6 @@ from .validators import validate_uploaded_file
 
 User = get_user_model()
 
-# represents any chat space (DM, group chat, etc.)
 class Conversation(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     room_id = models.CharField(max_length=50, unique=True, blank=True)
@@ -42,11 +42,6 @@ class Conversation(models.Model):
         return self.name or f"DM({self.room_id})"
 
 
-def upload_to_uuid(instance, filename):
-    ext = os.path.splitext(filename)[1].lower()
-    return f'chat_files/{uuid.uuid4()}{ext}'
-
-
 class Message(models.Model):
     conversation = models.ForeignKey(
         Conversation,
@@ -56,11 +51,12 @@ class Message(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    file = models.FileField(
-        upload_to=upload_to_uuid,
+    # FIX: CloudinaryField instead of FileField
+    file = CloudinaryField(
+        'file',
+        folder='chat_files',
         blank=True,
-        null=True,
-        validators=[validate_uploaded_file]
+        null=True
     )
 
     original_filename = models.CharField(max_length=255, blank=True)
@@ -90,30 +86,14 @@ class Message(models.Model):
     @property
     def filename(self):
         if self.file:
-            return os.path.basename(self.file.name)
+            return os.path.basename(str(self.file))
         return None
 
     @property
     def is_image(self):
-        """
-        Safe image detection:
-        - Works with Cloudinary (no local file access)
-        - Handles missing or broken file paths
-        - Uses MIME type when available
-        - Falls back to extension check
-        """
         if not self.file:
             return False
 
-        # Try MIME type first (Cloudinary sometimes provides this)
-        content_type = getattr(self.file, 'content_type', None)
-        if isinstance(content_type, str) and content_type.startswith('image/'):
-            return True
-
-        # Safe fallback: check extension
-        name = getattr(self.file, 'name', '')
-        if not isinstance(name, str) or '.' not in name:
-            return False
-
+        name = str(self.file)
         ext = os.path.splitext(name)[1].lower()
         return ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']
