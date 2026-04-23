@@ -25,9 +25,10 @@ def file_url(file_field):
     
     cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME', '')
     if cloud_name:
-        # Production: use Cloudinary URL
+        # Production: use Cloudinary URL with raw/upload for files
         name = file_field.name if hasattr(file_field, 'name') else str(file_field)
-        return f'https://res.cloudinary.com/{cloud_name}/image/upload/{name}'
+        # Use raw/upload which works for all file types including images
+        return f'https://res.cloudinary.com/{cloud_name}/raw/upload/{name}'
     else:
         # Development: use local URL
         return file_field.url if hasattr(file_field, 'url') else ''
