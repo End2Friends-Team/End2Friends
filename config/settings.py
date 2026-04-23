@@ -192,6 +192,7 @@ if os.getenv('CLOUDINARY_CLOUD_NAME'):
     MEDIA_URL = '/media/'
 else:
     # Local file storage for development
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
