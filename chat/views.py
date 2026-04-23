@@ -133,10 +133,6 @@ def upload_file(request, room_name):
             file=uploaded_file
         )
 
-        # STEP 2 — Assign file and save (this triggers Cloudinary upload)
-        msg.file = uploaded_file
-        msg.save()
-
         return JsonResponse({
             "ok": True,
             "message_id": msg.id,
