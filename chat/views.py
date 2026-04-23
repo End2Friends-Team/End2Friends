@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from .models import Conversation, Message
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -107,3 +108,42 @@ def delete_message(request, message_id):
     msg.save(update_fields=["is_deleted", "deleted_at", "content"])
 
     return JsonResponse({"ok": True})
+
+
+@login_required
+@require_POST
+def upload_file(request, room_name):
+    """Handle file uploads for chat messages."""
+    conversation = get_object_or_404(Conversation, room_id=room_name)
+    
+    if request.user not in conversation.participants.all():
+        return JsonResponse({"error": "Not a participant"}, status=403)
+    
+    uploaded_file = request.FILES.get('file')
+    message_text = request.POST.get('message', '').strip()
+    
+    if not uploaded_file:
+        return JsonResponse({"error": "No file provided"}, status=400)
+    
+    try:
+        msg = Message.objects.create(
+            conversation=conversation,
+            user=request.user,
+            content=message_text,
+            file=uploaded_file,
+            original_filename=uploaded_file.name
+        )
+        
+        return JsonResponse({
+            "ok": True,
+            "message_id": msg.id,
+            "file_url": msg.file.url if msg.file else None,
+            "filename": msg.original_filename,
+            "is_image": msg.is_image,
+            "content": msg.content,
+            "username": request.user.username,
+        })
+    except ValidationError as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

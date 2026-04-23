@@ -28,6 +28,11 @@ class UserProfile(models.Model):
     display_name = models.CharField(max_length=50, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
 
+    # Online presence tracking
+    is_online = models.BooleanField(default=False)
+    last_seen = models.DateTimeField(null=True, blank=True)
+    connection_count = models.PositiveIntegerField(default=0)  # Track multiple tabs/connections
+
     def __str__(self):
         return self.display_name or self.user.username
 

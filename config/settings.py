@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # ---------------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-only-for-local-dev")
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
@@ -39,6 +39,7 @@ CSRF_COOKIE_SAMESITE = 'None'
 # APPS
 # ---------------------------------------------------------
 INSTALLED_APPS = [
+    'daphne',
     'cloudinary_storage',
     'core',
     'accounts.apps.AccountsConfig',
@@ -176,14 +177,14 @@ cloudinary.config(
 )
 
 
-# TELL django to use Cloudinary for all media uploads
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-
-# ---------------------------------------------------------
-# MEDIA FILES (USER UPLOADS)
-# ---------------------------------------------------------
-MEDIA_URL = f'https://res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_NAME")}/'
+# Use Cloudinary if configured, otherwise use local storage
+if os.getenv('CLOUDINARY_CLOUD_NAME'):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = f'https://res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_NAME")}/'
+else:
+    # Local file storage for development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # ---------------------------------------------------------
