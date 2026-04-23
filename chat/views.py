@@ -129,7 +129,7 @@ def upload_file(request, room_name):
             conversation=conversation,
             user=request.user,
             content=message_text,
-            original_filename=uploaded_file.name
+            original_filename=uploaded_file.name,
             file=uploaded_file
         )
 
