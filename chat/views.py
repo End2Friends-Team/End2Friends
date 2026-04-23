@@ -130,6 +130,7 @@ def upload_file(request, room_name):
             user=request.user,
             content=message_text,
             original_filename=uploaded_file.name
+            file=uploaded_file
         )
 
         # STEP 2 — Assign file and save (this triggers Cloudinary upload)
